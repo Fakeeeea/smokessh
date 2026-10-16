@@ -1,12 +1,9 @@
 //
 // Created by aaa on 15/10/2026.
 //
-#include <sys/ioctl.h>
 #include <unistd.h>
+#include <time.h>
 
-#include <fcntl.h>
-#include <termios.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "smoke.h"
 
@@ -171,7 +168,14 @@ int main() {
 
     setup_terminal();
 
+    const float TARGET_FPS = 30.0f;
+    const long target_frame_time_us = (long)(1000000.0f / TARGET_FPS);
+
+    struct timespec start_time, end_time;
+
     while (1) {
+        clock_gettime(CLOCK_MONOTONIC, &start_time);
+
         ivec2 mov = parse_input();
 
         if (mov.x == 42 && mov.y == 42) {
@@ -181,7 +185,12 @@ int main() {
         handle_input(mov);
         run();
 
-        usleep(16000);
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+        long elapsed_us = (end_time.tv_sec - start_time.tv_sec) * 1000000L + (end_time.tv_nsec - start_time.tv_nsec) / 1000L;
+        if (elapsed_us < target_frame_time_us) {
+            usleep(target_frame_time_us - elapsed_us);
+        }
     }
 
     reset_terminal();
