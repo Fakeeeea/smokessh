@@ -27,6 +27,7 @@ void advect_vx();
 void advect_vy();
 void apply_temperature();
 void update_solid_map();
+void handle_input(ivec2 input);
 
 fvec2 get_interpolated_velocity(fvec2 p);
 

@@ -5,12 +5,12 @@
 #ifndef SMOKESSH_TERMINAL_H
 #define SMOKESSH_TERMINAL_H
 
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "smoke_math.h"
 
 void error(char *msg);
-int get_terminal_size(struct winsize *terminal_size);
+
+void setup_terminal();
+void reset_terminal();
+ivec2 parse_input();
 
 #endif //SMOKESSH_TERMINAL_H

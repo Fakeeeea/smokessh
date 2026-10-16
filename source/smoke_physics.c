@@ -182,11 +182,15 @@ void apply_temperature() {
 }
 
 void handle_emitter() {
-    smoke.smoke[smoke.s_idx][e1.location.x][e1.location.y] = e1.densities;
-    smoke.temp[smoke.s_idx][e1.location.x][e1.location.y] = e1.temperature;
+    if (!is_solid(e1.location)) {
+        smoke.smoke[smoke.s_idx][e1.location.x][e1.location.y] = e1.densities;
+        smoke.temp[smoke.s_idx][e1.location.x][e1.location.y] = e1.temperature;
+    }
 
-    smoke.smoke[smoke.s_idx][e2.location.x][e2.location.y] = e2.densities;
-    smoke.temp[smoke.s_idx][e2.location.x][e2.location.y] = e2.temperature;
+    if (!is_solid(e2.location)) {
+        smoke.smoke[smoke.s_idx][e2.location.x][e2.location.y] = e2.densities;
+        smoke.temp[smoke.s_idx][e2.location.x][e2.location.y] = e2.temperature;
+    }
 }
 
 fvec2 get_interpolated_velocity(fvec2 p) {
@@ -221,4 +225,9 @@ void update_solid_map() {
             }
         }
     }
+}
+
+void handle_input(ivec2 input) {
+    o.location.x += input.x;
+    o.location.y += input.y;
 }

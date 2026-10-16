@@ -4,6 +4,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <fcntl.h>
+#include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "smoke.h"
@@ -12,13 +14,9 @@
 #include "smoke_physics.h"
 #include "smoke_graphics.h"
 
-// placeholder values
-struct winsize terminal_size = {
-    .ws_col = 30,
-    .ws_row = 100
-};
-
 environment smoke;
+
+ivec2 size = {100, 30};
 
 obstacle o = {
     .radius = 3,
@@ -63,7 +61,7 @@ void run() {
 }
 
 void init_smoke() {
-    smoke.size = (ivec2){terminal_size.ws_row, terminal_size.ws_col};
+    smoke.size = (ivec2){size.x, size.y};
 
     smoke.velocitiesx[0] = malloc((smoke.size.x + 1) * sizeof(float*));
     smoke.velocitiesx[1] = malloc((smoke.size.x + 1) * sizeof(float*));
@@ -168,12 +166,24 @@ void free_smoke() {
 }
 
 int main() {
-    get_terminal_size(&terminal_size);
     init_smoke();
     reset_smoke();
 
+    setup_terminal();
+
     while (1) {
+        ivec2 mov = parse_input();
+
+        if (mov.x == 42 && mov.y == 42) {
+            break;
+        }
+
+        handle_input(mov);
         run();
+
+        usleep(16000);
     }
+
+    reset_terminal();
     return 0;
 }
