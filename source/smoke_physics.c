@@ -7,6 +7,7 @@
 extern environment smoke;
 extern emitter e1;
 extern emitter e2;
+extern obstacle o;
 
 int is_solid(ivec2 p) {
     if (p.x < 0 || p.y < 0 || p.x >= smoke.size.x || p.y >= smoke.size.y) {
@@ -198,4 +199,26 @@ fvec2 get_interpolated_velocity(fvec2 p) {
     v.y = sample_bilinear(&smoke.velocitiesy[smoke.vy_idx][0], smoke.size.x, smoke.size.y+1, gx-0.5f, gy);
 
     return v;
+}
+
+void update_solid_map() {
+    const int r_squared = o.radius * o.radius;
+
+    for (int x = 0; x < smoke.size.x; ++x) {
+        for (int y = 0; y < smoke.size.y; ++y) {
+            if (x == 0 || y == 0 || x == smoke.size.x-1 || y == smoke.size.y-1) {
+                smoke.solid[x][y] = 1;
+                continue;
+            }
+
+            int dx = (x - o.location.x);
+            int dy = (y - o.location.y);
+
+            if ((dx*dx + dy*dy) <= r_squared) {
+                smoke.solid[x][y] = 1;
+            } else {
+                smoke.solid[x][y] = 0;
+            }
+        }
+    }
 }

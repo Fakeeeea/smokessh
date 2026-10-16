@@ -20,7 +20,10 @@ struct winsize terminal_size = {
 
 environment smoke;
 
-obstacle player;
+obstacle o = {
+    .radius = 3,
+    .location = {30,15}
+};
 
 emitter e1 = {
     .location = {30, 3},
@@ -36,7 +39,7 @@ emitter e2 = {
 
 void run() {
     handle_emitter();
-    //handle player
+    update_solid_map();
 
     advect_vx(), advect_vy();
     smoke.vx_idx = 1 - smoke.vx_idx, smoke.vy_idx = 1 - smoke.vy_idx;
