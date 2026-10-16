@@ -63,52 +63,36 @@ void init_smoke() {
     smoke.size = (ivec2){terminal_size.ws_row, terminal_size.ws_col};
 
     smoke.velocitiesx[0] = malloc((smoke.size.x + 1) * sizeof(float*));
-    for (int i = 0; i <= smoke.size.x; i++) {
-        smoke.velocitiesx[0][i] = malloc(smoke.size.y * sizeof(float));
-    }
-
     smoke.velocitiesx[1] = malloc((smoke.size.x + 1) * sizeof(float*));
-    for (int i = 0; i <= smoke.size.x; i++) {
-        smoke.velocitiesx[1][i] = malloc(smoke.size.y * sizeof(float));
-    }
 
     smoke.velocitiesy[0] = malloc(smoke.size.x * sizeof(float*));
-    for (int i = 0; i < smoke.size.x; i++) {
-        smoke.velocitiesy[0][i] = malloc((smoke.size.y + 1) * sizeof(float));
-    }
-
     smoke.velocitiesy[1] = malloc(smoke.size.x * sizeof(float*));
-    for (int i = 0; i < smoke.size.x; i++) {
-        smoke.velocitiesy[1][i] = malloc((smoke.size.y + 1) * sizeof(float));
-    }
 
     smoke.pressure = malloc(smoke.size.x * sizeof(float*));
-    for (int i = 0; i < smoke.size.x; i++) {
-        smoke.pressure[i] = malloc(smoke.size.y * sizeof(float));
-    }
 
     smoke.smoke[0] = malloc(smoke.size.x * sizeof(fvec3*));
-    for (int i = 0; i < smoke.size.x; i++) {
-        smoke.smoke[0][i] = malloc(smoke.size.y * sizeof(fvec3));
-    }
+    smoke.smoke[1] = malloc(smoke.size.x * sizeof(fvec3*));
 
     smoke.temp[0] = malloc(smoke.size.x * sizeof(float*));
-    for (int i = 0; i < smoke.size.x; i++) {
-        smoke.temp[0][i] = malloc(smoke.size.y * sizeof(float));
-    }
-
-    smoke.smoke[1] = malloc(smoke.size.x * sizeof(fvec3*));
-    for (int i = 0; i < smoke.size.x; i++) {
-        smoke.smoke[1][i] = malloc(smoke.size.y * sizeof(fvec3));
-    }
-
     smoke.temp[1] = malloc(smoke.size.x * sizeof(float*));
-    for (int i = 0; i < smoke.size.x; i++) {
-        smoke.temp[1][i] = malloc(smoke.size.y * sizeof(float));
-    }
 
     smoke.solid = malloc(smoke.size.x * sizeof(int*));
-    for (int i = 0; i < smoke.size.x; i++) {
+
+    for (int i = 0; i <= smoke.size.x; i++) {
+        smoke.velocitiesx[0][i] = malloc(smoke.size.y * sizeof(float));
+        smoke.velocitiesx[1][i] = malloc(smoke.size.y * sizeof(float));
+
+        smoke.velocitiesy[0][i] = malloc((smoke.size.y + 1) * sizeof(float));
+        smoke.velocitiesy[1][i] = malloc((smoke.size.y + 1) * sizeof(float));
+
+        smoke.pressure[i] = malloc(smoke.size.y * sizeof(float));
+
+        smoke.smoke[0][i] = malloc(smoke.size.y * sizeof(fvec3));
+        smoke.smoke[1][i] = malloc(smoke.size.y * sizeof(fvec3));
+
+        smoke.temp[0][i] = malloc(smoke.size.y * sizeof(float));
+        smoke.temp[1][i] = malloc(smoke.size.y * sizeof(float));
+
         smoke.solid[i] = malloc(smoke.size.y * sizeof(int));
     }
 

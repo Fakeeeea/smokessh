@@ -5,8 +5,9 @@
 #ifndef SMOKESSH_SMOKE_GRAPHICS_H
 #define SMOKESSH_SMOKE_GRAPHICS_H
 
-void set_color(int r, int g, int b);
-void reset_color();
+// max grid area = 16.384 pixels.
+// Around 64 bytes per pixel
+#define BUFFER_SIZE (1024 * 1024)
 
 void print_smoke();
 
