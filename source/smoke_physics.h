@@ -27,4 +27,6 @@ void advect_vx();
 void advect_vy();
 void apply_temperature();
 
+fvec2 get_interpolated_velocity(fvec2 p);
+
 #endif //SMOKESSH_SMOKE_PHYSICS_H

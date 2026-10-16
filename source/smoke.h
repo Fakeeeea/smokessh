@@ -42,8 +42,4 @@ void free_smoke();
 
 void handle_emitter();
 
-fvec2 get_interpolated_velocity(fvec2 p);
-
-int print_smoke();
-
 #endif //SMOKESSH_SMOKE_H

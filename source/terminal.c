@@ -11,7 +11,7 @@ void error(char *msg) {
 
 int get_terminal_size(struct winsize *terminal_size) {
     //if (ioctl(STDOUT_FILENO, TIOCGWINSZ, terminal_size) != 0) {
-        //error("Failed fetching terminal size!");
+    //    error("Failed fetching terminal size!");
     //}
     if (terminal_size->ws_col >= 256) {
         printf("%d >= 256! A terminal too big leads to performance issues! Cols limited to 256", terminal_size->ws_col);

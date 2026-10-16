@@ -10,6 +10,7 @@
 
 #include "terminal.h"
 #include "smoke_physics.h"
+#include "smoke_graphics.h"
 
 // placeholder values
 struct winsize terminal_size = {
@@ -21,9 +22,15 @@ environment smoke;
 
 obstacle player;
 
-emitter e = {
-    .location = {50, 3},
-    .densities = {70, 10, 10},
+emitter e1 = {
+    .location = {30, 3},
+    .densities = {5, 10, 10},
+    .temperature = 300,
+};
+
+emitter e2 = {
+    .location = {70, 3},
+    .densities = {10, 10, 5},
     .temperature = 300,
 };
 
@@ -171,26 +178,6 @@ void free_smoke() {
     }
     free(smoke.velocitiesx[0]);
     free(smoke.velocitiesx[1]);
-}
-
-int print_smoke() {
-    const char levels[] = " .:-=+*#%@";
-    int n_levels = sizeof(levels) -1;
-
-    printf("\x1b[H");
-    for (int y = smoke.size.y - 1; y >= 0; y--) {
-        for (int x = 0; x < smoke.size.x; ++x) {
-
-            if (is_solid((ivec2){x,y})) {putchar('&'); continue;}
-
-            int level_idx = (int)(smoke.smoke[smoke.s_idx][x][y]).x + (int)(smoke.smoke[smoke.s_idx][x][y]).y + (int)(smoke.smoke[smoke.s_idx][x][y]).z;
-            if (level_idx < 0) level_idx = 0;
-            if (level_idx >= n_levels) level_idx = n_levels -1;
-
-            putchar(levels[level_idx]);
-        }
-        putchar('\n');
-    }
 }
 
 int main() {

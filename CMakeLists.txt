@@ -8,6 +8,8 @@ add_executable(smokessh source/smoke.c source/smoke.h
         source/smoke_math.c
         source/smoke_math.h
         source/smoke_physics.c
-        source/smoke_physics.h)
+        source/smoke_physics.h
+        source/smoke_graphics.c
+        source/smoke_graphics.h)
 
 target_link_libraries(smokessh PRIVATE m)

@@ -5,7 +5,8 @@
 #include "smoke_physics.h"
 
 extern environment smoke;
-extern emitter e;
+extern emitter e1;
+extern emitter e2;
 
 int is_solid(ivec2 p) {
     if (p.x < 0 || p.y < 0 || p.x >= smoke.size.x || p.y >= smoke.size.y) {
@@ -179,10 +180,12 @@ void apply_temperature() {
     }
 }
 
-//TODO: ADD COLORS
 void handle_emitter() {
-    smoke.smoke[smoke.s_idx][e.location.x][e.location.y] = e.densities;
-    smoke.temp[smoke.s_idx][e.location.x][e.location.y] = e.temperature;
+    smoke.smoke[smoke.s_idx][e1.location.x][e1.location.y] = e1.densities;
+    smoke.temp[smoke.s_idx][e1.location.x][e1.location.y] = e1.temperature;
+
+    smoke.smoke[smoke.s_idx][e2.location.x][e2.location.y] = e2.densities;
+    smoke.temp[smoke.s_idx][e2.location.x][e2.location.y] = e2.temperature;
 }
 
 fvec2 get_interpolated_velocity(fvec2 p) {
