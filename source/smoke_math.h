@@ -17,7 +17,7 @@ typedef struct fvec3 {
     float x,y,z;
 }fvec3;
 
-float sample_bilinear(float* data, int width, int height, float x, float y);
+float sample_bilinear(float** data, int width, int height, float x, float y);
 float lerp(float a, float b, float t);
 
 #endif //SMOKESSH_SMOKE_MATH_H

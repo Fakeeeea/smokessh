@@ -14,7 +14,8 @@ typedef struct environment {
     float** velocitiesy[2];
 
     float** pressure;
-    fvec2** smoke[2];
+    float** smoke[2];
+    float** temp[2];
 
     int** solid;
 
@@ -41,10 +42,10 @@ void free_smoke();
 
 int is_solid(ivec2 p);
 
-int get_vx(ivec2 p);
-int get_vy(ivec2 p);
+float get_vx(ivec2 p);
+float get_vy(ivec2 p);
 
-int get_pressure(ivec2 p);
+float get_pressure(ivec2 p);
 
 void solve_pressure_iteration();
 void solve_pressure();
@@ -55,7 +56,9 @@ void advect_vx();
 void advect_vy();
 void apply_temperature();
 
-fvec2 get_interpolated_velocity(ivec2 p);
+void handle_emitter();
+
+fvec2 get_interpolated_velocity(fvec2 p);
 
 int print_smoke();
 

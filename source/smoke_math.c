@@ -3,3 +3,31 @@
 //
 
 #include "smoke_math.h"
+#include <math.h>
+
+float sample_bilinear(float** data, int width, int height, float x, float y) {
+    int x0 = (int) floorf(x);
+    int y0 = (int) floorf(y);
+
+    int x1 = x0 +1;
+    int y1 = y0 +1;
+
+    if (x0 < 0) x0 = 0; if (x0 >= width) x0 = width-1;
+    if (y0 < 0) y0 = 0; if (y0 >= height) y0 = height-1;
+    if (x1 >= width) x1 = width-1; if (x1 < 0) x1 = 0;
+    if (y1 >= height) y1 = height-1; if (y1 < 0) y1 = 0;
+
+    float tx = x - x0;
+    float ty = y - y0;
+
+#define D(i,j) (data[i][j])
+    float a = lerp(D(x0,y0), D(x1,y0), tx);
+    float b = lerp(D(x0,y1), D(x1,y1), tx);
+#undef D
+
+    return lerp(a, b, ty);
+}
+
+float lerp(float a, float b, float t) {
+    return a + t * (b-a);
+}
