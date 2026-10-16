@@ -83,7 +83,7 @@ void solve_pressure() {
 }
 void update_vx() {
     const float k = - TIMESTEP / CELL_SIZE;
-    for (int x = 0; x < smoke.size.x; ++x) {
+    for (int x = 0; x <= smoke.size.x; ++x) {
         for (int y = 0; y < smoke.size.y; ++y) {
             if (is_solid((ivec2){x,y}) || is_solid((ivec2){x-1,y})) continue;
             float p_right = get_pressure((ivec2){x,y});
@@ -96,7 +96,7 @@ void update_vx() {
 void update_vy() {
     const float k = - TIMESTEP / CELL_SIZE;
     for (int x = 0; x < smoke.size.x; ++x) {
-        for (int y = 0; y < smoke.size.y; ++y) {
+        for (int y = 0; y <= smoke.size.y; ++y) {
             if (is_solid((ivec2){x,y}) || is_solid((ivec2){x,y-1})) continue;
             float p_top = get_pressure((ivec2){x,y});
             float p_bottom = get_pressure((ivec2){x,y-1});
@@ -110,7 +110,7 @@ void advect_smoke() {
     for (int x = 0; x < smoke.size.x; ++x) {
         for (int y = 0; y < smoke.size.y; ++y) {
             if (is_solid((ivec2){x,y})) {
-                smoke.smoke[1-smoke.s_idx][x][y] = 0;
+                smoke.smoke[1-smoke.s_idx][x][y] = (fvec3){0,0,0};
                 smoke.temp[1-smoke.s_idx][x][y] = T_AMBIENT;
                 continue;
             };
@@ -121,7 +121,7 @@ void advect_smoke() {
 
             fvec2 grid_space = {comes_from.x / CELL_SIZE - 0.5f, comes_from.y / CELL_SIZE - 0.5f};
             fvec2 prev = {grid_space.x, grid_space.y};
-            smoke.smoke[1-smoke.s_idx][x][y] = sample_bilinear(&smoke.smoke[smoke.s_idx][0], smoke.size.x, smoke.size.y, prev.x, prev.y);
+            smoke.smoke[1-smoke.s_idx][x][y] = sample_bilinear_fvec3(&smoke.smoke[smoke.s_idx][0], smoke.size.x, smoke.size.y, prev.x, prev.y);
             smoke.temp[1-smoke.s_idx][x][y] = sample_bilinear(&smoke.temp[smoke.s_idx][0], smoke.size.x, smoke.size.y, prev.x, prev.y);;
         }
     }
@@ -166,7 +166,9 @@ void apply_temperature() {
 
             fvec2 pos = (fvec2){ x + 0.5f, y};
             float temperature = sample_bilinear(&smoke.temp[smoke.s_idx][0], smoke.size.x, smoke.size.y, pos.x, pos.y);
-            float smoke_amount = sample_bilinear(&smoke.smoke[smoke.s_idx][0], smoke.size.x, smoke.size.y, pos.x, pos.y);
+            fvec3 smoke_data = sample_bilinear_fvec3(&smoke.smoke[smoke.s_idx][0], smoke.size.x, smoke.size.y, pos.x, pos.y);
+
+            float smoke_amount = smoke_data.x + smoke_data.y + smoke_data.z;
 
             const float WEIGHT_F = 0.1f;
             const float TEMPERATURE_F = 1.0f;
@@ -179,7 +181,7 @@ void apply_temperature() {
 
 //TODO: ADD COLORS
 void handle_emitter() {
-    smoke.smoke[smoke.s_idx][e.location.x][e.location.y] = e.densities.x;
+    smoke.smoke[smoke.s_idx][e.location.x][e.location.y] = e.densities;
     smoke.temp[smoke.s_idx][e.location.x][e.location.y] = e.temperature;
 }
 

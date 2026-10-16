@@ -80,9 +80,9 @@ void init_smoke() {
         smoke.pressure[i] = malloc(smoke.size.y * sizeof(float));
     }
 
-    smoke.smoke[0] = malloc(smoke.size.x * sizeof(float*));
+    smoke.smoke[0] = malloc(smoke.size.x * sizeof(fvec3*));
     for (int i = 0; i < smoke.size.x; i++) {
-        smoke.smoke[0][i] = malloc(smoke.size.y * sizeof(float));
+        smoke.smoke[0][i] = malloc(smoke.size.y * sizeof(fvec3));
     }
 
     smoke.temp[0] = malloc(smoke.size.x * sizeof(float*));
@@ -90,9 +90,9 @@ void init_smoke() {
         smoke.temp[0][i] = malloc(smoke.size.y * sizeof(float));
     }
 
-    smoke.smoke[1] = malloc(smoke.size.x * sizeof(float*));
+    smoke.smoke[1] = malloc(smoke.size.x * sizeof(fvec3*));
     for (int i = 0; i < smoke.size.x; i++) {
-        smoke.smoke[1][i] = malloc(smoke.size.y * sizeof(float));
+        smoke.smoke[1][i] = malloc(smoke.size.y * sizeof(fvec3));
     }
 
     smoke.temp[1] = malloc(smoke.size.x * sizeof(float*));
@@ -117,8 +117,8 @@ void reset_smoke() {
                 smoke.solid[x][y] = 0;
             }
 
-            smoke.smoke[0][x][y] = 0;
-            smoke.smoke[1][x][y] = 0;
+            smoke.smoke[0][x][y] = (fvec3){0,0,0};
+            smoke.smoke[1][x][y] = (fvec3){0,0,0};
             smoke.temp[0][x][y] = T_AMBIENT;
             smoke.temp[1][x][y] = T_AMBIENT;
 
@@ -183,7 +183,7 @@ int print_smoke() {
 
             if (is_solid((ivec2){x,y})) {putchar('&'); continue;}
 
-            int level_idx = (int)(smoke.smoke[smoke.s_idx][x][y]);
+            int level_idx = (int)(smoke.smoke[smoke.s_idx][x][y]).x + (int)(smoke.smoke[smoke.s_idx][x][y]).y + (int)(smoke.smoke[smoke.s_idx][x][y]).z;
             if (level_idx < 0) level_idx = 0;
             if (level_idx >= n_levels) level_idx = n_levels -1;
 
