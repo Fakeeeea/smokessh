@@ -10,6 +10,8 @@ add_executable(smokessh source/smoke.c source/smoke.h
         source/smoke_physics.c
         source/smoke_physics.h
         source/smoke_graphics.c
-        source/smoke_graphics.h)
+        source/smoke_graphics.h
+        source/smoke_parser.c
+        source/smoke_parser.h)
 
 target_link_libraries(smokessh PRIVATE m)

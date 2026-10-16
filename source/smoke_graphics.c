@@ -52,7 +52,6 @@ static void set_color(int r, int g, int b) {
 }
 
 static void reset_color() {
-    putchar(27), putchar('['), putchar('0'), putchar('m');
     push_str("\033[0m");
 }
 

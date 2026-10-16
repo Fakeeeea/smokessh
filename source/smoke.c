@@ -10,6 +10,7 @@
 #include "terminal.h"
 #include "smoke_physics.h"
 #include "smoke_graphics.h"
+#include "smoke_parser.h"
 
 environment smoke;
 
@@ -31,6 +32,9 @@ emitter e2 = {
     .densities = {10, 10, 5},
     .temperature = 300,
 };
+
+emitter* e = NULL;
+int e_num = 0;
 
 void run() {
     handle_emitter();
@@ -166,9 +170,10 @@ int main() {
     init_smoke();
     reset_smoke();
 
+    parse_emitters(&e, &e_num);
     setup_terminal();
 
-    const float TARGET_FPS = 30.0f;
+    const float TARGET_FPS = 15.0f;
     const long target_frame_time_us = (long)(1000000.0f / TARGET_FPS);
 
     struct timespec start_time, end_time;

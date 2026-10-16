@@ -9,6 +9,9 @@ extern emitter e1;
 extern emitter e2;
 extern obstacle o;
 
+extern emitter* e;
+extern int e_num;
+
 int is_solid(ivec2 p) {
     if (p.x < 0 || p.y < 0 || p.x >= smoke.size.x || p.y >= smoke.size.y) {
         return 1;
@@ -182,14 +185,11 @@ void apply_temperature() {
 }
 
 void handle_emitter() {
-    if (!is_solid(e1.location)) {
-        smoke.smoke[smoke.s_idx][e1.location.x][e1.location.y] = e1.densities;
-        smoke.temp[smoke.s_idx][e1.location.x][e1.location.y] = e1.temperature;
-    }
-
-    if (!is_solid(e2.location)) {
-        smoke.smoke[smoke.s_idx][e2.location.x][e2.location.y] = e2.densities;
-        smoke.temp[smoke.s_idx][e2.location.x][e2.location.y] = e2.temperature;
+    for (int i = 0; i < e_num; ++i) {
+        if (!is_solid(e[i].location)) {
+            smoke.smoke[smoke.s_idx][e[i].location.x][e[i].location.y] = e[i].densities;
+            smoke.temp[smoke.s_idx][e[i].location.x][e[i].location.y] = e[i].temperature;
+        }
     }
 }
 
