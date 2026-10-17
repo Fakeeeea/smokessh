@@ -8,11 +8,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <math.h>
 
 extern environment smoke;
 
 char frame_buffer[BUFFER_SIZE];
+
 int buf_len = 0;
 
 static void push_char(char c) {
@@ -27,27 +29,27 @@ static void push_str(const char* str) {
     }
 }
 
+static int get_closest_color_index(int r, int g, int b) {
+    r = (5 * r) / 255;
+    g = (5 * g) / 255;
+    b = (5 * b) / 255;
+    return 16 + 36*r + 6 * g + b;
+}
+
 static void set_color(int r, int g, int b) {
 
     if (r < 0) r = 0; if ( r > 255) r = 255;
     if (g < 0) g = 0; if ( g > 255) g = 255;
     if (b < 0) b = 0; if ( b > 255) b = 255;
 
-    push_str("\033[38;2;");
+    //push_str("\033[38;2;");
+    push_str("\033[38;5;");
 
-    if (r >= 100) push_char('0' + r / 100);
-    if (r >= 10) push_char('0' + (r/10) % 10);
-    push_char('0' + r % 10);
-    push_char(';');
+    int index = get_closest_color_index(r,g,b);
 
-    if (g >= 100) push_char('0' + g / 100);
-    if (g >= 10) push_char('0' + (g/10) % 10);
-    push_char('0' + g % 10);
-    push_char(';');
-
-    if (b >= 100) push_char('0' + b / 100);
-    if (b >= 10) push_char('0' + (b/10) % 10);
-    push_char('0' + b % 10);
+    if (index >= 100) push_char('0' + index / 100);
+    if (index >= 10) push_char('0' + (index/10) % 10);
+    push_char('0' + index % 10);
     push_char('m');
 }
 
@@ -60,7 +62,7 @@ static void reset_pointer() {
 }
 
 static void print_framebuffer() {
-    fwrite(frame_buffer, 1, buf_len, stdout);
+    write(STDOUT_FILENO, frame_buffer, buf_len);
     fflush(stdout);
     buf_len = 0;
 }
@@ -96,9 +98,6 @@ void print_smoke() {
             }
 
             if (to_init) {
-                prev_r = r;
-                prev_g = g;
-                prev_b = b;
                 to_init = 0;
                 set_color((int)r,(int)g,(int)b);
             } else if (fabsf(r - prev_r) >= EPSILON ||

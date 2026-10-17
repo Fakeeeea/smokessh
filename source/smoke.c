@@ -58,7 +58,6 @@ void run() {
 
     advect_smoke();
     smoke.s_idx = 1 - smoke.s_idx;
-    print_smoke();
 }
 
 void init_smoke() {
@@ -189,6 +188,8 @@ int main() {
 
         handle_input(mov);
         run();
+
+        print_smoke();
 
         clock_gettime(CLOCK_MONOTONIC, &end_time);
 
