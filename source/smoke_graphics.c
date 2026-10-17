@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include <errno.h>
+#include <poll.h>
 
 extern environment smoke;
 
@@ -45,7 +47,7 @@ static void move_cursor(int r, int c) {
     push_str("\033["), push_int(r), push_char(';'), push_int(c), push_char('H');
 }
 
-static void clear_screen() {
+void clear_screen() {
     push_str("\033[2J");
 }
 
@@ -91,8 +93,27 @@ static void set_color_index(int index) {
     push_char('m');
 }
 
+static void flush_buffer() {
+    int off = 0;
+    while (off < buf_len) {
+        ssize_t n = write(STDOUT_FILENO, frame_buffer + off, buf_len - off);
+        if (n > 0) {
+            off += n;
+        } else if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+            struct pollfd p = {.fd = STDOUT_FILENO, .events = POLL_OUT};
+            poll(&p, 1, 100);
+        } else if (n < 0 && errno == EINTR) {
+            continue;
+        } else {
+            break;
+        }
+    }
+
+    buf_len = 0;
+}
+
 static void print_framebuffer() {
-    write(STDOUT_FILENO, frame_buffer, buf_len);
+    flush_buffer();
     fflush(stdout);
     buf_len = 0;
 }

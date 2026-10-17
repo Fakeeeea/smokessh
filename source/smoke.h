@@ -7,6 +7,8 @@
 
 #include "smoke_math.h"
 
+#include <signal.h>
+
 typedef struct environment {
     ivec2 size;
 
@@ -21,6 +23,8 @@ typedef struct environment {
 
     int vx_idx, vy_idx;
     int s_idx;
+
+    volatile sig_atomic_t init;
 }environment;
 
 typedef struct emitter {

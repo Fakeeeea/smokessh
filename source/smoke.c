@@ -3,7 +3,7 @@
 //
 #include <unistd.h>
 #include <time.h>
-
+#include <signal.h>
 #include <stdlib.h>
 #include "smoke.h"
 
@@ -14,10 +14,10 @@
 
 environment smoke;
 
-ivec2 size = {100, 30};
+ivec2 size = {100 , 30};
 
 obstacle o = {
-    .radius = 1,
+    .radius = 2,
     .location = {50,15}
 };
 
@@ -79,7 +79,7 @@ void init_smoke() {
 
     smoke.solid = malloc(smoke.size.x * sizeof(int*));
 
-    for (int i = 0; i <= smoke.size.x; i++) {
+    for (int i = 0; i < smoke.size.x; i++) {
         smoke.velocitiesx[0][i] = malloc(smoke.size.y * sizeof(float));
         smoke.velocitiesx[1][i] = malloc(smoke.size.y * sizeof(float));
 
@@ -97,7 +97,13 @@ void init_smoke() {
         smoke.solid[i] = malloc(smoke.size.y * sizeof(int));
     }
 
+    for (int i = 0; i <= smoke.size.x; i++) {
+        smoke.velocitiesx[0][i] = malloc(smoke.size.y * sizeof(float));
+        smoke.velocitiesx[1][i] = malloc(smoke.size.y * sizeof(float));
+    }
+
     smoke.s_idx = smoke.vx_idx = smoke.vy_idx = 0;
+    smoke.init = 1;
 }
 
 void reset_smoke() {
@@ -165,7 +171,23 @@ void free_smoke() {
     free(smoke.velocitiesx[1]);
 }
 
+void restart_simulation() {
+    free_smoke();
+    init_smoke();
+    reset_smoke();
+    init_graphics();
+}
+
 int main() {
+    struct sigaction sa = {0};
+    sa.sa_handler = resize_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+
+    sigaction(SIGWINCH, &sa, NULL);
+
+    detect_size(&size);
+
     init_smoke();
     reset_smoke();
 
@@ -178,6 +200,11 @@ int main() {
     struct timespec start_time, end_time;
 
     while (1) {
+
+        if (!smoke.init) {
+            restart_simulation();
+        }
+
         clock_gettime(CLOCK_MONOTONIC, &start_time);
 
         ivec2 mov = parse_input();
@@ -200,5 +227,6 @@ int main() {
     }
 
     reset_terminal();
+    free_smoke();
     return 0;
 }

@@ -9,6 +9,9 @@
 
 void error(char *msg);
 
+void detect_size(ivec2* size);
+void resize_handler(int sig);
+
 void setup_terminal();
 void reset_terminal();
 ivec2 parse_input();

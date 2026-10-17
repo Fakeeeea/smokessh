@@ -4,10 +4,15 @@
 
 #include "terminal.h"
 
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <termios.h>
 #include <fcntl.h>
+#include "smoke.h"
+
+#define DEFAULT_SIZE_X 100
+#define DEFAULT_SIZE_Y 30
 
 struct termios old, new;
 int oldf;
@@ -58,4 +63,40 @@ ivec2 parse_input() {
     }
 
     return mov;
+}
+
+void detect_size(ivec2* size) {
+    struct winsize ws;
+
+    if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
+        *size = (ivec2){ws.ws_col, ws.ws_row};
+        if (size->x < 10) size->x = 10;
+        if (size->y < 10) size->y = 10;
+
+        if (size->x > 256) size->x = 256;
+        if (size->y > 256) size->y = 256;
+    } else {
+        *size = (ivec2){DEFAULT_SIZE_X, DEFAULT_SIZE_Y};
+    }
+}
+
+extern ivec2 size;
+extern environment smoke;
+
+void resize_handler(int sig) {
+    struct winsize ws;
+
+    if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
+        size = (ivec2){ws.ws_col, ws.ws_row};
+        
+        if (size.x < 10) size.x = 10;
+        if (size.y < 10) size.y = 10;
+
+        if (size.x > 256) size.x = 256;
+        if (size.y > 256) size.y = 256;
+    } else {
+        size = (ivec2){DEFAULT_SIZE_X, DEFAULT_SIZE_Y};
+    }
+
+    smoke.init = 0;
 }
