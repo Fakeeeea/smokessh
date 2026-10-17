@@ -9,6 +9,7 @@
 // Around 64 bytes per pixel
 #define BUFFER_SIZE (1024 * 1024)
 
+void init_graphics();
 void print_smoke();
 
 #endif //SMOKESSH_SMOKE_GRAPHICS_H

@@ -17,8 +17,8 @@ environment smoke;
 ivec2 size = {100, 30};
 
 obstacle o = {
-    .radius = 3,
-    .location = {30,15}
+    .radius = 1,
+    .location = {50,15}
 };
 
 emitter e1 = {

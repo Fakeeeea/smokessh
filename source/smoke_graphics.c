@@ -13,9 +13,15 @@
 
 extern environment smoke;
 
-char frame_buffer[BUFFER_SIZE];
+static char frame_buffer[BUFFER_SIZE];
+static char drawn_ch[256][256];
+static int drawn_col[256][256];
 
-int buf_len = 0;
+static int cur_row = -1;
+static int cur_col = -1;
+static int cur_color = -1;
+
+static int buf_len = 0;
 
 static void push_char(char c) {
     if (buf_len < BUFFER_SIZE -1) {
@@ -29,28 +35,26 @@ static void push_str(const char* str) {
     }
 }
 
-static int get_closest_color_index(int r, int g, int b) {
-    r = (5 * r) / 255;
-    g = (5 * g) / 255;
-    b = (5 * b) / 255;
-    return 16 + 36*r + 6 * g + b;
+static void push_int(int n) {
+    if (n >= 100) push_char('0' + n / 100);
+    if (n >= 10) push_char('0' + (n/10) % 10);
+    push_char('0' + n % 10);
 }
 
-static void set_color(int r, int g, int b) {
+static void move_cursor(int r, int c) {
+    push_str("\033["), push_int(r), push_char(';'), push_int(c), push_char('H');
+}
 
-    if (r < 0) r = 0; if ( r > 255) r = 255;
-    if (g < 0) g = 0; if ( g > 255) g = 255;
-    if (b < 0) b = 0; if ( b > 255) b = 255;
+static void clear_screen() {
+    push_str("\033[2J");
+}
 
-    //push_str("\033[38;2;");
-    push_str("\033[38;5;");
+static void hide_cursor() {
+    push_str("\033[?25l");
+}
 
-    int index = get_closest_color_index(r,g,b);
-
-    if (index >= 100) push_char('0' + index / 100);
-    if (index >= 10) push_char('0' + (index/10) % 10);
-    push_char('0' + index % 10);
-    push_char('m');
+static void show_cursor() {
+    push_str("\033[?25h");
 }
 
 static void reset_color() {
@@ -61,57 +65,102 @@ static void reset_pointer() {
     push_str("\033[H");
 }
 
+static int get_closest_color_index(int r, int g, int b) {
+    r = (5 * r) / 255;
+    g = (5 * g) / 255;
+    b = (5 * b) / 255;
+    return 16 + 36*r + 6 * g + b;
+}
+
+static void set_color_rgb(int r, int g, int b) {
+
+    if (r < 0) r = 0; if ( r > 255) r = 255;
+    if (g < 0) g = 0; if ( g > 255) g = 255;
+    if (b < 0) b = 0; if ( b > 255) b = 255;
+
+    push_str("\033[38;5;");
+
+    push_int(get_closest_color_index(r,g,b));
+
+    push_char('m');
+}
+
+static void set_color_index(int index) {
+    push_str("\033[38;5;");
+    push_int(index);
+    push_char('m');
+}
+
 static void print_framebuffer() {
     write(STDOUT_FILENO, frame_buffer, buf_len);
     fflush(stdout);
     buf_len = 0;
 }
 
+void init_graphics() {
+    for (int y = 0; y < 256; ++y) {
+        for (int x = 0; x < 256; ++x) {
+            drawn_col[y][x] = -1;
+            drawn_ch[y][x] = 0;
+        }
+    }
+    clear_screen();
+    hide_cursor();
+}
+
 void print_smoke() {
+    cur_row = cur_col = cur_color = -1;
+
     const char levels[] = " .:-=+*#%@";
     int n_levels = sizeof(levels) -1;
 
-    int to_init = 1;
-    float prev_r, prev_g, prev_b;
-    const float EPSILON = 1.0f;
+    for (int sy = 0; sy < smoke.size.y; ++sy) {
+        int y = smoke.size.y - 1 - sy;
 
-    reset_pointer();
-
-    for (int y = smoke.size.y - 1; y >= 0; y--) {
         for (int x = 0; x < smoke.size.x; ++x) {
-            if (is_solid((ivec2){x,y})) {reset_color(); push_char('&'); continue;}
+            int col;
+            char ch;
 
-            float r = smoke.smoke[smoke.s_idx][x][y].x;
-            float g = smoke.smoke[smoke.s_idx][x][y].y;
-            float b = smoke.smoke[smoke.s_idx][x][y].z;
+            if (is_solid((ivec2){x,y})) {
+                col = 244;
+                ch = '&';
+            } else {
+                float r = smoke.smoke[smoke.s_idx][x][y].x;
+                float g = smoke.smoke[smoke.s_idx][x][y].y;
+                float b = smoke.smoke[smoke.s_idx][x][y].z;
 
-            int level_idx = (int)(r+g+b);
-            if (level_idx < 0) level_idx = 0;
-            if (level_idx >= n_levels) level_idx = n_levels -1;
+                int level_idx = (int)(r+g+b);
+                if (level_idx < 0) level_idx = 0;
+                if (level_idx >= n_levels) level_idx = n_levels -1;
+                ch = levels[level_idx];
 
-            float max = fmaxf(r, fmaxf(g, b));
+                float max = fmaxf(r, fmaxf(g, b));
+                if (max != 0) {
+                    r = 255.0f * (r / max);
+                    g = 255.0f * (g / max);
+                    b = 255.0f * (b / max);
+                }
+                col = get_closest_color_index(r,g,b);
 
-            if (max != 0) {
-                r = 255.0f * (r / max);
-                g = 255.0f * (g / max);
-                b = 255.0f * (b / max);
+                if (ch == ' ' && drawn_col[sy][x] >= 0) col = drawn_col[sy][x];
             }
 
-            if (to_init) {
-                to_init = 0;
-                set_color((int)r,(int)g,(int)b);
-            } else if (fabsf(r - prev_r) >= EPSILON ||
-                        fabsf(g - prev_g) >= EPSILON ||
-                        fabsf(b - prev_b) >= EPSILON) {
-                set_color((int)r,(int)g,(int)b);
+            if (ch == drawn_ch[sy][x] && col == drawn_col[sy][x]) { continue; }
+
+            if (cur_row != sy || cur_col != x) {move_cursor(sy + 1, x + 1);}
+
+            if (ch != ' ' && col != cur_color) {
+                set_color_index(col); cur_color = col;
             }
 
-            push_char(levels[level_idx]);
+            push_char(ch);
 
-            prev_r = r; prev_g = g; prev_b = b;
+            cur_row = sy; cur_col = x+1;
+
+            if (x == smoke.size.x - 1) cur_row = -1;
+
+            drawn_ch[sy][x] = ch; drawn_col[sy][x] = col;
         }
-        push_char('\n');
     }
-
     print_framebuffer();
 }

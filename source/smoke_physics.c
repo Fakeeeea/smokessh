@@ -230,4 +230,10 @@ void update_solid_map() {
 void handle_input(ivec2 input) {
     o.location.x += input.x;
     o.location.y += input.y;
+
+    if (o.location.x > smoke.size.x) {o.location.x = smoke.size.x;}
+    if (o.location.x < 0) {o.location.x = 0;}
+
+    if (o.location.y > smoke.size.y) {o.location.y = smoke.size.y;}
+    if (o.location.y < 0) {o.location.y = 0;}
 }
