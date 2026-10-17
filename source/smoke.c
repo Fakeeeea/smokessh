@@ -21,18 +21,6 @@ obstacle o = {
     .location = {50,15}
 };
 
-emitter e1 = {
-    .location = {30, 3},
-    .densities = {5, 10, 10},
-    .temperature = 300,
-};
-
-emitter e2 = {
-    .location = {70, 3},
-    .densities = {10, 10, 5},
-    .temperature = 300,
-};
-
 emitter* e = NULL;
 int e_num = 0;
 
@@ -209,7 +197,7 @@ int main() {
 
         ivec2 mov = parse_input();
 
-        if (mov.x == 42 && mov.y == 42) {
+        if (mov.x == QUIT && mov.y == QUIT) {
             break;
         }
 

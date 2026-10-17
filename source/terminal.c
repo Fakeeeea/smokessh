@@ -58,7 +58,7 @@ ivec2 parse_input() {
                 mov.y--;
                 break;
             case 'q':
-                mov.y = mov.x = 42;
+                mov.y = mov.x = QUIT;
         }
     }
 
@@ -70,11 +70,11 @@ void detect_size(ivec2* size) {
 
     if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
         *size = (ivec2){ws.ws_col, ws.ws_row};
-        if (size->x < 10) size->x = 10;
-        if (size->y < 10) size->y = 10;
+        if (size->x < MIN_ANY_SIZE) size->x = MIN_ANY_SIZE;
+        if (size->y < MIN_ANY_SIZE) size->y = MIN_ANY_SIZE;
 
-        if (size->x > 256) size->x = 256;
-        if (size->y > 256) size->y = 256;
+        if (size->x > MAX_ANY_SIZE) size->x = MAX_ANY_SIZE;
+        if (size->y > MAX_ANY_SIZE) size->y = MAX_ANY_SIZE;
     } else {
         *size = (ivec2){DEFAULT_SIZE_X, DEFAULT_SIZE_Y};
     }
@@ -88,12 +88,12 @@ void resize_handler(int sig) {
 
     if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
         size = (ivec2){ws.ws_col, ws.ws_row};
-        
-        if (size.x < 10) size.x = 10;
-        if (size.y < 10) size.y = 10;
 
-        if (size.x > 256) size.x = 256;
-        if (size.y > 256) size.y = 256;
+        if (size.x < MIN_ANY_SIZE) size.x = MIN_ANY_SIZE;
+        if (size.y < MIN_ANY_SIZE) size.y = MIN_ANY_SIZE;
+
+        if (size.x > MAX_ANY_SIZE) size.x = MAX_ANY_SIZE;
+        if (size.y > MAX_ANY_SIZE) size.y = MAX_ANY_SIZE;
     } else {
         size = (ivec2){DEFAULT_SIZE_X, DEFAULT_SIZE_Y};
     }

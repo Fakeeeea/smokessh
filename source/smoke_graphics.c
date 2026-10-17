@@ -16,8 +16,8 @@
 extern environment smoke;
 
 static char frame_buffer[BUFFER_SIZE];
-static char drawn_ch[256][256];
-static int drawn_col[256][256];
+static char drawn_ch[MAX_ANY_SIZE][MAX_ANY_SIZE];
+static int drawn_col[MAX_ANY_SIZE][MAX_ANY_SIZE];
 
 static int cur_row = -1;
 static int cur_col = -1;

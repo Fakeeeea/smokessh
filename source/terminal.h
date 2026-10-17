@@ -7,6 +7,8 @@
 
 #include "smoke_math.h"
 
+#define QUIT 42
+
 void error(char *msg);
 
 void detect_size(ivec2* size);
