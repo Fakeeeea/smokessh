@@ -5,8 +5,6 @@
 #include "smoke_physics.h"
 
 extern environment smoke;
-extern emitter e1;
-extern emitter e2;
 extern obstacle o;
 
 extern emitter* e;

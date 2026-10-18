@@ -7,9 +7,10 @@
 
 #include "smoke_math.h"
 
-#define QUIT 42
+#define DEFAULT_SIZE_X 100
+#define DEFAULT_SIZE_Y 30
 
-void error(char *msg);
+#define QUIT 42
 
 void detect_size(ivec2* size);
 void resize_handler(int sig);

@@ -27,7 +27,7 @@ typedef struct environment {
     int vx_idx, vy_idx;
     int s_idx;
 
-    volatile sig_atomic_t init;
+    volatile sig_atomic_t resize_pending;
 }environment;
 
 typedef struct emitter {

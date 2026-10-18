@@ -11,9 +11,6 @@
 #include <fcntl.h>
 #include "smoke.h"
 
-#define DEFAULT_SIZE_X 100
-#define DEFAULT_SIZE_Y 30
-
 struct termios old, new;
 int oldf;
 
@@ -65,6 +62,9 @@ ivec2 parse_input() {
     return mov;
 }
 
+extern ivec2 size;
+extern environment smoke;
+
 void detect_size(ivec2* size) {
     struct winsize ws;
 
@@ -78,25 +78,10 @@ void detect_size(ivec2* size) {
     } else {
         *size = (ivec2){DEFAULT_SIZE_X, DEFAULT_SIZE_Y};
     }
+
+    smoke.resize_pending = 0;
 }
 
-extern ivec2 size;
-extern environment smoke;
-
 void resize_handler(int sig) {
-    struct winsize ws;
-
-    if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
-        size = (ivec2){ws.ws_col, ws.ws_row};
-
-        if (size.x < MIN_ANY_SIZE) size.x = MIN_ANY_SIZE;
-        if (size.y < MIN_ANY_SIZE) size.y = MIN_ANY_SIZE;
-
-        if (size.x > MAX_ANY_SIZE) size.x = MAX_ANY_SIZE;
-        if (size.y > MAX_ANY_SIZE) size.y = MAX_ANY_SIZE;
-    } else {
-        size = (ivec2){DEFAULT_SIZE_X, DEFAULT_SIZE_Y};
-    }
-
-    smoke.init = 0;
+    smoke.resize_pending = 1;
 }

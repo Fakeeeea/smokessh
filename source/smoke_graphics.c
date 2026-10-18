@@ -119,8 +119,8 @@ static void print_framebuffer() {
 }
 
 void init_graphics() {
-    for (int y = 0; y < 256; ++y) {
-        for (int x = 0; x < 256; ++x) {
+    for (int y = 0; y < MAX_ANY_SIZE; ++y) {
+        for (int x = 0; x < MAX_ANY_SIZE; ++x) {
             drawn_col[y][x] = -1;
             drawn_ch[y][x] = 0;
         }

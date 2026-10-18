@@ -7,18 +7,22 @@
 #include <stdlib.h>
 #include "smoke.h"
 
+#include <stdio.h>
+
 #include "terminal.h"
 #include "smoke_physics.h"
 #include "smoke_graphics.h"
 #include "smoke_parser.h"
 
+#include <errno.h>
+
 environment smoke;
 
-ivec2 size = {100 , 30};
+ivec2 size = {DEFAULT_SIZE_X , DEFAULT_SIZE_Y};
 
 obstacle o = {
     .radius = 2,
-    .location = {50,15}
+    .location = {DEFAULT_SIZE_X * 0.5f,DEFAULT_SIZE_Y * 0.5f}
 };
 
 emitter* e = NULL;
@@ -34,12 +38,6 @@ void run() {
     apply_temperature();
     smoke.vy_idx = 1 - smoke.vy_idx;
 
-    for (int x = 0; x < smoke.size.x; ++x) {
-        for (int y = 0; y < smoke.size.y; ++y) {
-            smoke.pressure[x][y] = 0;
-        }
-    }
-
     solve_pressure();
     update_vx(), update_vy();
     smoke.vx_idx = 1 - smoke.vx_idx, smoke.vy_idx = 1 - smoke.vy_idx;
@@ -49,49 +47,57 @@ void run() {
 }
 
 void init_smoke() {
+
+#define MALLOC(ptr, size)            \
+    do {                             \
+        (ptr) = malloc(size);        \
+        if ((ptr) == NULL) {         \
+            perror("malloc");        \
+            exit(EXIT_FAILURE);      \
+        }                            \
+    }while (0)                       \
+
     smoke.size = (ivec2){size.x, size.y};
 
-    smoke.velocitiesx[0] = malloc((smoke.size.x + 1) * sizeof(float*));
-    smoke.velocitiesx[1] = malloc((smoke.size.x + 1) * sizeof(float*));
+    MALLOC(smoke.velocitiesx[0],(smoke.size.x + 1) * sizeof(float*));
+    MALLOC(smoke.velocitiesx[1],(smoke.size.x + 1) * sizeof(float*));
 
-    smoke.velocitiesy[0] = malloc(smoke.size.x * sizeof(float*));
-    smoke.velocitiesy[1] = malloc(smoke.size.x * sizeof(float*));
+    MALLOC(smoke.velocitiesy[0],(smoke.size.x * sizeof(float*)));
+    MALLOC(smoke.velocitiesy[1],(smoke.size.x * sizeof(float*)));
 
-    smoke.pressure = malloc(smoke.size.x * sizeof(float*));
+    MALLOC(smoke.pressure, (smoke.size.x * sizeof(float*)));
 
-    smoke.smoke[0] = malloc(smoke.size.x * sizeof(fvec3*));
-    smoke.smoke[1] = malloc(smoke.size.x * sizeof(fvec3*));
+    MALLOC(smoke.smoke[0], (smoke.size.x * sizeof(fvec3*)));
+    MALLOC(smoke.smoke[1], (smoke.size.x * sizeof(fvec3*)));
 
-    smoke.temp[0] = malloc(smoke.size.x * sizeof(float*));
-    smoke.temp[1] = malloc(smoke.size.x * sizeof(float*));
+    MALLOC(smoke.temp[0], (smoke.size.x * sizeof(float*)));
+    MALLOC(smoke.temp[1], (smoke.size.x * sizeof(float*)));
 
-    smoke.solid = malloc(smoke.size.x * sizeof(int*));
+    MALLOC(smoke.solid, (smoke.size.x * sizeof(int*)));
 
     for (int i = 0; i < smoke.size.x; i++) {
-        smoke.velocitiesx[0][i] = malloc(smoke.size.y * sizeof(float));
-        smoke.velocitiesx[1][i] = malloc(smoke.size.y * sizeof(float));
+        MALLOC(smoke.velocitiesy[0][i], ((smoke.size.y + 1) * sizeof(float)));
+        MALLOC(smoke.velocitiesy[1][i], ((smoke.size.y + 1) * sizeof(float)));
 
-        smoke.velocitiesy[0][i] = malloc((smoke.size.y + 1) * sizeof(float));
-        smoke.velocitiesy[1][i] = malloc((smoke.size.y + 1) * sizeof(float));
+        MALLOC(smoke.pressure[i], (smoke.size.y * sizeof(float)));
 
-        smoke.pressure[i] = malloc(smoke.size.y * sizeof(float));
+        MALLOC(smoke.smoke[0][i], (smoke.size.y * sizeof(fvec3)));
+        MALLOC(smoke.smoke[1][i], (smoke.size.y * sizeof(fvec3)));
 
-        smoke.smoke[0][i] = malloc(smoke.size.y * sizeof(fvec3));
-        smoke.smoke[1][i] = malloc(smoke.size.y * sizeof(fvec3));
+        MALLOC(smoke.temp[0][i], (smoke.size.y * sizeof(float)));
+        MALLOC(smoke.temp[1][i], (smoke.size.y * sizeof(float)));
 
-        smoke.temp[0][i] = malloc(smoke.size.y * sizeof(float));
-        smoke.temp[1][i] = malloc(smoke.size.y * sizeof(float));
-
-        smoke.solid[i] = malloc(smoke.size.y * sizeof(int));
+        MALLOC(smoke.solid[i], (smoke.size.y * sizeof(int)));
     }
 
     for (int i = 0; i <= smoke.size.x; i++) {
-        smoke.velocitiesx[0][i] = malloc(smoke.size.y * sizeof(float));
-        smoke.velocitiesx[1][i] = malloc(smoke.size.y * sizeof(float));
+        MALLOC(smoke.velocitiesx[0][i], (smoke.size.y * sizeof(float)));
+        MALLOC(smoke.velocitiesx[1][i], (smoke.size.y * sizeof(float)));
     }
 
+#undef MALLOC
+
     smoke.s_idx = smoke.vx_idx = smoke.vy_idx = 0;
-    smoke.init = 1;
 }
 
 void reset_smoke() {
@@ -161,6 +167,7 @@ void free_smoke() {
 
 void restart_simulation() {
     free_smoke();
+    detect_size(&size);
     init_smoke();
     reset_smoke();
     init_graphics();
@@ -189,7 +196,7 @@ int main() {
 
     while (1) {
 
-        if (!smoke.init) {
+        if (smoke.resize_pending) {
             restart_simulation();
         }
 
@@ -203,7 +210,6 @@ int main() {
 
         handle_input(mov);
         run();
-
         print_smoke();
 
         clock_gettime(CLOCK_MONOTONIC, &end_time);
