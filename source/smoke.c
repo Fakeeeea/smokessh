@@ -165,12 +165,18 @@ void free_smoke() {
     free(smoke.velocitiesx[1]);
 }
 
+void init_obstacle() {
+    o.location.x = smoke.size.x * 0.5f;
+    o.location.y = smoke.size.y * 0.5f;
+}
+
 void restart_simulation() {
     free_smoke();
     detect_size(&size);
     init_smoke();
     reset_smoke();
     init_graphics();
+    init_obstacle();
 }
 
 int main() {

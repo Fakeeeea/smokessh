@@ -46,6 +46,7 @@ void run();
 void init_smoke();
 void reset_smoke();
 void free_smoke();
+void init_obstacle();
 
 void handle_emitter();
 

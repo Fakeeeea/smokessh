@@ -55,6 +55,12 @@ static void hide_cursor() {
     push_str("\033[?25l");
 }
 
+static void set_background(int index) {
+    push_str("\033[48;5;");
+    push_int(index);
+    push_char('m');
+}
+
 static void show_cursor() {
     push_str("\033[?25h");
 }
@@ -118,6 +124,10 @@ static void print_framebuffer() {
     buf_len = 0;
 }
 
+static void set_bold() {
+    push_str("\033[1m");
+}
+
 void init_graphics() {
     for (int y = 0; y < MAX_ANY_SIZE; ++y) {
         for (int x = 0; x < MAX_ANY_SIZE; ++x) {
@@ -129,13 +139,32 @@ void init_graphics() {
     hide_cursor();
 }
 
+static void print_header() {
+    const char *title = " q to quit";
+
+    int title_len = 10;
+
+    move_cursor(1,1);
+    set_background(get_closest_color_index(0,250,250));
+    set_color_rgb(0,0,0);
+    set_bold();
+
+    push_str(title);
+    for (int x = title_len; x < smoke.size.x; ++x) {
+        push_char(' ');
+    }
+    reset_color();
+}
+
 void print_smoke() {
     cur_row = cur_col = cur_color = -1;
 
     const char levels[] = " .:-=+*#%@";
     int n_levels = sizeof(levels) -1;
 
-    for (int sy = 0; sy < smoke.size.y; ++sy) {
+    print_header();
+
+    for (int sy = 1; sy < smoke.size.y; ++sy) {
         int y = smoke.size.y - 1 - sy;
 
         for (int x = 0; x < smoke.size.x; ++x) {

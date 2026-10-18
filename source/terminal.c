@@ -79,6 +79,8 @@ void detect_size(ivec2* size) {
         *size = (ivec2){DEFAULT_SIZE_X, DEFAULT_SIZE_Y};
     }
 
+    size->y--; //first line dedicated to header
+
     smoke.resize_pending = 0;
 }
 
