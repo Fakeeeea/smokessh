@@ -13,8 +13,7 @@
 #include "smoke_physics.h"
 #include "smoke_graphics.h"
 #include "smoke_parser.h"
-
-#include <errno.h>
+#include "smoke_utils.h"
 
 environment smoke;
 
@@ -47,15 +46,6 @@ void run() {
 }
 
 void init_smoke() {
-
-#define MALLOC(ptr, size)            \
-    do {                             \
-        (ptr) = malloc(size);        \
-        if ((ptr) == NULL) {         \
-            perror("malloc");        \
-            exit(EXIT_FAILURE);      \
-        }                            \
-    }while (0)                       \
 
     smoke.size = (ivec2){size.x, size.y};
 
@@ -94,8 +84,6 @@ void init_smoke() {
         MALLOC(smoke.velocitiesx[0][i], (smoke.size.y * sizeof(float)));
         MALLOC(smoke.velocitiesx[1][i], (smoke.size.y * sizeof(float)));
     }
-
-#undef MALLOC
 
     smoke.s_idx = smoke.vx_idx = smoke.vy_idx = 0;
 }
@@ -166,8 +154,8 @@ void free_smoke() {
 }
 
 void init_obstacle() {
-    o.location.x = smoke.size.x * 0.5f;
-    o.location.y = smoke.size.y * 0.5f;
+    o.location.x = (int)((float)smoke.size.x * 0.5f);
+    o.location.y = (int)((float)smoke.size.y * 0.5f);
 }
 
 void restart_simulation() {
@@ -195,7 +183,7 @@ int main() {
     parse_emitters(&e, &e_num);
     setup_terminal();
 
-    const float TARGET_FPS = 15.0f;
+    const float TARGET_FPS = 30.0f;
     const long target_frame_time_us = (long)(1000000.0f / TARGET_FPS);
 
     struct timespec start_time, end_time;

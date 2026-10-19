@@ -65,13 +65,13 @@ void solve_pressure_iteration() {
 
             float delta_v = v_right - v_left + v_top - v_bottom;
 
-            float p_left = get_pressure((ivec2){x-1,y}) * flow_left;
-            float p_right = get_pressure((ivec2){x+1,y}) * flow_right;
-            float p_top = get_pressure((ivec2){x,y+1}) * flow_top;
-            float p_bottom = get_pressure((ivec2){x,y-1}) * flow_bottom;
+            float p_left = get_pressure((ivec2){x-1,y}) * (float) flow_left;
+            float p_right = get_pressure((ivec2){x+1,y}) * (float) flow_right;
+            float p_top = get_pressure((ivec2){x,y+1}) * (float) flow_top;
+            float p_bottom = get_pressure((ivec2){x,y-1}) * (float) flow_bottom;
 
             float p_sum = p_left + p_right + p_top + p_bottom;
-            float p = (p_sum - CELL_SIZE * delta_v / TIMESTEP) / f_sum;
+            float p = (p_sum - CELL_SIZE * delta_v / TIMESTEP) / (float) f_sum;
 
             smoke.pressure[x][y] = p;
         }
@@ -79,7 +79,7 @@ void solve_pressure_iteration() {
 }
 
 void solve_pressure() {
-    const float ITERATIONS = 60;
+    const int ITERATIONS = 60;
     for (int i = 0; i <= ITERATIONS; ++i) {
         solve_pressure_iteration();
     }
@@ -112,18 +112,18 @@ void update_vy() {
 void advect_smoke() {
     for (int x = 0; x < smoke.size.x; ++x) {
         for (int y = 0; y < smoke.size.y; ++y) {
-            if (is_solid((ivec2){x,y})) {
+            if (is_solid((ivec2){ x,  y})) {
                 smoke.smoke[1-smoke.s_idx][x][y] = (fvec3){0,0,0};
                 smoke.temp[1-smoke.s_idx][x][y] = T_AMBIENT;
                 continue;
             };
 
-            fvec2 world_pos = {(x + 0.5f) * CELL_SIZE, (y + 0.5f) * CELL_SIZE};
-            fvec2 v = get_interpolated_velocity(world_pos);
-            fvec2 comes_from = {world_pos.x - v.x * TIMESTEP, world_pos.y - v.y * TIMESTEP};
+            const fvec2 world_pos = {((float)x + 0.5f) * CELL_SIZE, ((float)y + 0.5f) * CELL_SIZE};
+            const fvec2 v = get_interpolated_velocity(world_pos);
+            const fvec2 comes_from = {world_pos.x - v.x * TIMESTEP, world_pos.y - v.y * TIMESTEP};
 
-            fvec2 grid_space = {comes_from.x / CELL_SIZE - 0.5f, comes_from.y / CELL_SIZE - 0.5f};
-            fvec2 prev = {grid_space.x, grid_space.y};
+            const fvec2 grid_space = {comes_from.x / CELL_SIZE - 0.5f, comes_from.y / CELL_SIZE - 0.5f};
+            const fvec2 prev = {grid_space.x, grid_space.y};
             smoke.smoke[1-smoke.s_idx][x][y] = sample_bilinear_fvec3(&smoke.smoke[smoke.s_idx][0], smoke.size.x, smoke.size.y, prev.x, prev.y);
             smoke.temp[1-smoke.s_idx][x][y] = sample_bilinear(&smoke.temp[smoke.s_idx][0], smoke.size.x, smoke.size.y, prev.x, prev.y);;
         }
@@ -133,13 +133,13 @@ void advect_smoke() {
 void advect_vx() {
     for (int x = 0; x <= smoke.size.x; ++x) {
         for (int y = 0; y < smoke.size.y; ++y) {
-            if (is_solid((ivec2){x,y}) || is_solid((ivec2){x-1,y})) continue;
+            if (is_solid((ivec2){x, y}) || is_solid((ivec2){ x-1, y})) continue;
 
-            fvec2 world_pos = {x * CELL_SIZE, (y + 0.5f) * CELL_SIZE};
-            fvec2 v = get_interpolated_velocity(world_pos);
-            fvec2 comes_from = {world_pos.x - v.x * TIMESTEP, world_pos.y - v.y * TIMESTEP};
+            const fvec2 world_pos = { (float)x * CELL_SIZE, ((float)y + 0.5f) * CELL_SIZE};
+            const fvec2 v = get_interpolated_velocity(world_pos);
+            const fvec2 comes_from = {world_pos.x - v.x * TIMESTEP, world_pos.y - v.y * TIMESTEP};
 
-            fvec2 vx_uv = {comes_from.x / CELL_SIZE, comes_from.y / CELL_SIZE - 0.5f};
+            const fvec2 vx_uv = {comes_from.x / CELL_SIZE, comes_from.y / CELL_SIZE - 0.5f};
             smoke.velocitiesx[1-smoke.vx_idx][x][y] = sample_bilinear(&smoke.velocitiesx[smoke.vx_idx][0], smoke.size.x+1, smoke.size.y, vx_uv.x, vx_uv.y);;
         }
     }
@@ -147,13 +147,13 @@ void advect_vx() {
 void advect_vy() {
     for (int x = 0; x < smoke.size.x; ++x) {
         for (int y = 0; y <= smoke.size.y; ++y) {
-            if (is_solid((ivec2){x,y}) || is_solid((ivec2){x,y-1})) continue;
+            if (is_solid((ivec2){ x, y}) || is_solid((ivec2){ x, y-1})) continue;
 
-            fvec2 world_pos = {(x + 0.5f) * CELL_SIZE, y * CELL_SIZE};
-            fvec2 v = get_interpolated_velocity(world_pos);
-            fvec2 comes_from = {world_pos.x - v.x * TIMESTEP, world_pos.y - v.y * TIMESTEP};
+            const fvec2 world_pos = {((float)x + 0.5f) * CELL_SIZE, (float)y * CELL_SIZE};
+            const fvec2 v = get_interpolated_velocity(world_pos);
+            const fvec2 comes_from = {world_pos.x - v.x * TIMESTEP, world_pos.y - v.y * TIMESTEP};
 
-            fvec2 vx_uv = {comes_from.x / CELL_SIZE - 0.5f, comes_from.y / CELL_SIZE};
+            const fvec2 vx_uv = {comes_from.x / CELL_SIZE - 0.5f, comes_from.y / CELL_SIZE};
             smoke.velocitiesy[1-smoke.vy_idx][x][y] = sample_bilinear(&smoke.velocitiesy[smoke.vy_idx][0], smoke.size.x, smoke.size.y+1, vx_uv.x, vx_uv.y);;
         }
     }
@@ -167,7 +167,7 @@ void apply_temperature() {
                 continue;
             };
 
-            fvec2 pos = (fvec2){ x + 0.5f, y};
+            fvec2 pos = (fvec2){ (float) x + 0.5f, (float) y};
             float temperature = sample_bilinear(&smoke.temp[smoke.s_idx][0], smoke.size.x, smoke.size.y, pos.x, pos.y);
             fvec3 smoke_data = sample_bilinear_fvec3(&smoke.smoke[smoke.s_idx][0], smoke.size.x, smoke.size.y, pos.x, pos.y);
 

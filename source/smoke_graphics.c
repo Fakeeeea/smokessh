@@ -25,7 +25,7 @@ static int cur_color = -1;
 
 static int buf_len = 0;
 
-static void push_char(char c) {
+static void push_char(const char c) {
     if (buf_len < BUFFER_SIZE -1) {
         frame_buffer[buf_len++] = c;
     }
@@ -37,10 +37,10 @@ static void push_str(const char* str) {
     }
 }
 
-static void push_int(int n) {
-    if (n >= 100) push_char('0' + n / 100);
-    if (n >= 10) push_char('0' + (n/10) % 10);
-    push_char('0' + n % 10);
+static void push_int(const int n) {
+    if (n >= 100) push_char((char)((int)'0' + n / 100));
+    if (n >= 10) push_char((char)((int)'0' + (n/10) % 10));
+    push_char((char)((int)'0' + n % 10));
 }
 
 static void move_cursor(int r, int c) {
@@ -61,16 +61,8 @@ static void set_background(int index) {
     push_char('m');
 }
 
-static void show_cursor() {
-    push_str("\033[?25h");
-}
-
 static void reset_color() {
     push_str("\033[0m");
-}
-
-static void reset_pointer() {
-    push_str("\033[H");
 }
 
 static int get_closest_color_index(int r, int g, int b) {
@@ -102,9 +94,9 @@ static void set_color_index(int index) {
 static void flush_buffer() {
     int off = 0;
     while (off < buf_len) {
-        ssize_t n = write(STDOUT_FILENO, frame_buffer + off, buf_len - off);
+        const ssize_t n = write(STDOUT_FILENO, frame_buffer + off, buf_len - off);
         if (n > 0) {
-            off += n;
+            off += (int)n;
         } else if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
             struct pollfd p = {.fd = STDOUT_FILENO, .events = POLL_OUT};
             poll(&p, 1, 100);
@@ -184,13 +176,13 @@ void print_smoke() {
                 if (level_idx >= n_levels) level_idx = n_levels -1;
                 ch = levels[level_idx];
 
-                float max = fmaxf(r, fmaxf(g, b));
+                const float max = fmaxf(r, fmaxf(g, b));
                 if (max != 0) {
                     r = 255.0f * (r / max);
                     g = 255.0f * (g / max);
                     b = 255.0f * (b / max);
                 }
-                col = get_closest_color_index(r,g,b);
+                col = get_closest_color_index((int) r, (int) g, (int) b);
 
                 if (ch == ' ' && drawn_col[sy][x] >= 0) col = drawn_col[sy][x];
             }

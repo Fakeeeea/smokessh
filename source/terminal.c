@@ -11,8 +11,8 @@
 #include <fcntl.h>
 #include "smoke.h"
 
-struct termios old, new;
-int oldf;
+static struct termios old, new;
+static int oldf;
 
 void setup_terminal() {
     tcgetattr(STDIN_FILENO, &old);
@@ -34,9 +34,9 @@ void reset_terminal() {
 }
 
 ivec2 parse_input() {
-    ivec2 mov = {0,0};
+    ivec2 mov = {.x = 0, .y = 0};
     char c;
-    while ((c = getchar()) != EOF) {
+    while ((c = (char)getchar()) != EOF) {
         switch (c) {
             case 'a':
             case 'A':
@@ -56,27 +56,28 @@ ivec2 parse_input() {
                 break;
             case 'q':
                 mov.y = mov.x = QUIT;
+            default:
+                break;
         }
     }
 
     return mov;
 }
 
-extern ivec2 size;
 extern environment smoke;
 
 void detect_size(ivec2* size) {
     struct winsize ws;
 
     if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
-        *size = (ivec2){ws.ws_col, ws.ws_row};
+        *size = (ivec2){.x = ws.ws_col, .y = ws.ws_row};
         if (size->x < MIN_ANY_SIZE) size->x = MIN_ANY_SIZE;
         if (size->y < MIN_ANY_SIZE) size->y = MIN_ANY_SIZE;
 
         if (size->x > MAX_ANY_SIZE) size->x = MAX_ANY_SIZE;
         if (size->y > MAX_ANY_SIZE) size->y = MAX_ANY_SIZE;
     } else {
-        *size = (ivec2){DEFAULT_SIZE_X, DEFAULT_SIZE_Y};
+        *size = (ivec2){.x = DEFAULT_SIZE_X, .y = DEFAULT_SIZE_Y};
     }
 
     size->y--; //first line dedicated to header

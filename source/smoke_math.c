@@ -5,7 +5,7 @@
 #include "smoke_math.h"
 #include <math.h>
 
-float sample_bilinear(float** data, int width, int height, float x, float y) {
+float sample_bilinear(float** data, const int width, const int height, const float x, const float y) {
     int x0 = (int) floorf(x);
     int y0 = (int) floorf(y);
 
@@ -17,8 +17,8 @@ float sample_bilinear(float** data, int width, int height, float x, float y) {
     if (x1 >= width) x1 = width-1; if (x1 < 0) x1 = 0;
     if (y1 >= height) y1 = height-1; if (y1 < 0) y1 = 0;
 
-    float tx = x - x0;
-    float ty = y - y0;
+    const float tx = x - (float)x0;
+    const float ty = y - (float)y0;
 
 #define D(i,j) (data[i][j])
     float a = lerp(D(x0,y0), D(x1,y0), tx);
@@ -40,8 +40,8 @@ fvec3 sample_bilinear_fvec3(fvec3** data, int width, int height, float x, float 
     if (x1 >= width) x1 = width-1; if (x1 < 0) x1 = 0;
     if (y1 >= height) y1 = height-1; if (y1 < 0) y1 = 0;
 
-    float tx = x - x0;
-    float ty = y - y0;
+    const float tx = x - (float) x0;
+    const float ty = y - (float) y0;
 
     fvec3 a, b;
 
