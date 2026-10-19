@@ -41,13 +41,19 @@ typedef struct obstacle {
     int radius;
 }obstacle;
 
+extern environment smoke;
+extern ivec2 size;
+extern emitter* e;
+extern int e_num;
+
 void run();
 
 void init_smoke();
 void reset_smoke();
 void free_smoke();
 void init_obstacle();
-
-void handle_emitter();
+void restart_simulation();
+void set_handlers();
+long get_elapsed_us(struct timespec start_time, struct timespec end_time);
 
 #endif //SMOKESSH_SMOKE_H

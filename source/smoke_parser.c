@@ -4,6 +4,7 @@
 
 #include "smoke_parser.h"
 #include "smoke_utils.h"
+#include "config.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,7 +13,11 @@
 void parse_emitters(emitter** emitter_array, int* emitter_counter) {
     FILE* fptr;
 
-    if ((fptr = fopen("emitters", "r")) != NULL) {
+    if (config.emitter_file == NULL) {
+        config.emitter_file = "emitters_def";
+    }
+
+    if ((fptr = fopen(config.emitter_file, "r")) != NULL) {
         if (fscanf(fptr, "C:%d", emitter_counter)) {
 
             MALLOC(*emitter_array, (*emitter_counter * sizeof(emitter)));

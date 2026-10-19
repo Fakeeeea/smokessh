@@ -2,7 +2,6 @@
 // Created by aaa on 15/10/2026.
 //
 #include <unistd.h>
-#include <time.h>
 #include <signal.h>
 #include <stdlib.h>
 #include "smoke.h"
@@ -12,20 +11,20 @@
 #include "terminal.h"
 #include "smoke_physics.h"
 #include "smoke_graphics.h"
-#include "smoke_parser.h"
+#include "config.h"
 #include "smoke_utils.h"
 
 environment smoke;
-
 ivec2 size = {DEFAULT_SIZE_X , DEFAULT_SIZE_Y};
+emitter* e = NULL;
+int e_num = 0;
 
 obstacle o = {
     .radius = 2,
     .location = {DEFAULT_SIZE_X * 0.5f,DEFAULT_SIZE_Y * 0.5f}
 };
 
-emitter* e = NULL;
-int e_num = 0;
+struct sigaction sa = {0};
 
 void run() {
     handle_emitter();
@@ -99,8 +98,8 @@ void reset_smoke() {
 
             smoke.smoke[0][x][y] = (fvec3){0,0,0};
             smoke.smoke[1][x][y] = (fvec3){0,0,0};
-            smoke.temp[0][x][y] = T_AMBIENT;
-            smoke.temp[1][x][y] = T_AMBIENT;
+            smoke.temp[0][x][y] = config.t_ambient;
+            smoke.temp[1][x][y] = config.t_ambient;
 
             smoke.pressure[x][y] = 0;
         }
@@ -167,54 +166,14 @@ void restart_simulation() {
     init_obstacle();
 }
 
-int main() {
-    struct sigaction sa = {0};
+void set_handlers() {
     sa.sa_handler = resize_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
 
     sigaction(SIGWINCH, &sa, NULL);
+}
 
-    detect_size(&size);
-
-    init_smoke();
-    reset_smoke();
-
-    parse_emitters(&e, &e_num);
-    setup_terminal();
-
-    const float TARGET_FPS = 30.0f;
-    const long target_frame_time_us = (long)(1000000.0f / TARGET_FPS);
-
-    struct timespec start_time, end_time;
-
-    while (1) {
-
-        if (smoke.resize_pending) {
-            restart_simulation();
-        }
-
-        clock_gettime(CLOCK_MONOTONIC, &start_time);
-
-        ivec2 mov = parse_input();
-
-        if (mov.x == QUIT && mov.y == QUIT) {
-            break;
-        }
-
-        handle_input(mov);
-        run();
-        print_smoke();
-
-        clock_gettime(CLOCK_MONOTONIC, &end_time);
-
-        long elapsed_us = (end_time.tv_sec - start_time.tv_sec) * 1000000L + (end_time.tv_nsec - start_time.tv_nsec) / 1000L;
-        if (elapsed_us < target_frame_time_us) {
-            usleep(target_frame_time_us - elapsed_us);
-        }
-    }
-
-    reset_terminal();
-    free_smoke();
-    return 0;
+long get_elapsed_us(struct timespec start_time, struct timespec end_time) {
+    return (end_time.tv_sec - start_time.tv_sec) * 1000000L + (end_time.tv_nsec - start_time.tv_nsec) / 1000L;
 }
