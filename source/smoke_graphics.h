@@ -12,5 +12,6 @@
 void init_graphics();
 void print_smoke();
 void clear_screen();
+void show_cursor();
 
 #endif //SMOKESSH_SMOKE_GRAPHICS_H

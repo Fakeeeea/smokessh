@@ -39,9 +39,11 @@ void parse_flags(int argc, char *argv[]) {
                 break;
             case 's':
                 config.time_step = atof(optarg);
+                config.time_step = config.time_step <= 0 ? 0.0167f : config.time_step;
                 break;
             case 'c':
                 config.cell_size = atof(optarg);
+                config.cell_size = config.cell_size <= 0 ? 0.1f : config.cell_size;
                 break;
             default:
                 fprintf(stderr, "Usage %s [-f target_fps]\n [-e emitters_file]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n", argv[0]);
@@ -55,6 +57,8 @@ int main(int argc, char *argv[]) {
     set_handlers();
     detect_size(&size);
     init_smoke();
+    init_obstacle();
+    init_graphics();
     reset_smoke();
     parse_emitters(&e, &e_num);
     setup_terminal();
@@ -90,6 +94,7 @@ int main(int argc, char *argv[]) {
     }
 
     reset_terminal();
+    show_cursor();
     free_smoke();
     return 0;
 }

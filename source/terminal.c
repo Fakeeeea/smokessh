@@ -35,8 +35,8 @@ void reset_terminal() {
 
 ivec2 parse_input() {
     ivec2 mov = {.x = 0, .y = 0};
-    char c;
-    while ((c = (char)getchar()) != EOF) {
+    int c;
+    while ((c = getchar()) != EOF) {
         switch (c) {
             case 'a':
             case 'A':

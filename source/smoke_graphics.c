@@ -55,6 +55,10 @@ static void hide_cursor() {
     push_str("\033[?25l");
 }
 
+void show_cursor() {
+    push_str("\033[?25h");
+}
+
 static void set_background(int index) {
     push_str("\033[48;5;");
     push_int(index);
@@ -98,7 +102,7 @@ static void flush_buffer() {
         if (n > 0) {
             off += (int)n;
         } else if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-            struct pollfd p = {.fd = STDOUT_FILENO, .events = POLL_OUT};
+            struct pollfd p = {.fd = STDOUT_FILENO, .events = POLLOUT};
             poll(&p, 1, 100);
         } else if (n < 0 && errno == EINTR) {
             continue;

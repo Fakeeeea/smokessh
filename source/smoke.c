@@ -166,6 +166,14 @@ void restart_simulation() {
     init_obstacle();
 }
 
+void free_emitters() {
+    if (e != NULL) {
+        free(e);
+        e = NULL;
+        e_num = 0;
+    }
+}
+
 void set_handlers() {
     sa.sa_handler = resize_handler;
     sigemptyset(&sa.sa_mask);

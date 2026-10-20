@@ -55,5 +55,6 @@ void init_obstacle();
 void restart_simulation();
 void set_handlers();
 long get_elapsed_us(struct timespec start_time, struct timespec end_time);
+void free_emitters();
 
 #endif //SMOKESSH_SMOKE_H
