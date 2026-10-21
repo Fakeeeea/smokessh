@@ -5,7 +5,7 @@
 #include "smoke_math.h"
 #include <math.h>
 
-float sample_bilinear(float** data, const int width, const int height, const float x, const float y) {
+float sample_bilinear(float* data, const int width, const int height, const float x, const float y) {
     int x0 = (int) floorf(x);
     int y0 = (int) floorf(y);
 
@@ -20,7 +20,7 @@ float sample_bilinear(float** data, const int width, const int height, const flo
     const float tx = x - (float)x0;
     const float ty = y - (float)y0;
 
-#define D(i,j) (data[i][j])
+#define D(i,j) (data[j * width + i])
     float a = lerp(D(x0,y0), D(x1,y0), tx);
     float b = lerp(D(x0,y1), D(x1,y1), tx);
 #undef D
@@ -28,7 +28,7 @@ float sample_bilinear(float** data, const int width, const int height, const flo
     return lerp(a, b, ty);
 }
 
-fvec3 sample_bilinear_fvec3(fvec3** data, int width, int height, float x, float y) {
+fvec3 sample_bilinear_fvec3(fvec3* data, int width, int height, float x, float y) {
     int x0 = (int) floorf(x);
     int y0 = (int) floorf(y);
 
@@ -45,7 +45,7 @@ fvec3 sample_bilinear_fvec3(fvec3** data, int width, int height, float x, float 
 
     fvec3 a, b;
 
-#define D(i,j) (data[i][j])
+#define D(i,j) (data[j * width + i])
     a.x = lerp(D(x0,y0).x, D(x1,y0).x, tx);
     b.x = lerp(D(x0,y1).x, D(x1,y1).x, tx);
 

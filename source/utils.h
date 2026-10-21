@@ -14,4 +14,6 @@ do {                        \
     }                       \
 }while (0)                  \
 
+#define IDX(x,y,w) ((size_t)(y) * (w) + (x))
+
 #endif //SMOKESSH_SMOKE_UTILS_H

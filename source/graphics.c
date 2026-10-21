@@ -5,6 +5,7 @@
 #include "smoke.h"
 #include "physics.h"
 #include "graphics.h"
+#include "utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -164,6 +165,8 @@ void print_smoke() {
         int y = smoke.size.y - 1 - sy;
 
         for (int x = 0; x < smoke.size.x; ++x) {
+            const int idx = IDX(x,y,smoke.size.x);
+
             int col;
             char ch;
 
@@ -171,9 +174,10 @@ void print_smoke() {
                 col = 244;
                 ch = '&';
             } else {
-                float r = smoke.smoke[smoke.s_idx][x][y].x;
-                float g = smoke.smoke[smoke.s_idx][x][y].y;
-                float b = smoke.smoke[smoke.s_idx][x][y].z;
+                fvec3 s = smoke.smoke[smoke.s_idx][idx];
+                float r = s.x;
+                float g = s.y;
+                float b = s.z;
 
                 int level_idx = (int)(r+g+b);
                 if (level_idx < 0) level_idx = 0;

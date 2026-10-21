@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
     parse_emitters(&e, &e_num);
     setup_terminal();
 
-    const long target_frame_time_us = (long)(1000000.0f / config.target_fps);
+    const long target_frame_time_us = (long)(1000000.0f / (float)config.target_fps);
 
     struct timespec start_time, end_time;
 

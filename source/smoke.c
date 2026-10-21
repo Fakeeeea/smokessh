@@ -48,41 +48,24 @@ void init_smoke() {
 
     smoke.size = (ivec2){size.x, size.y};
 
-    MALLOC(smoke.velocitiesx[0],(smoke.size.x + 1) * sizeof(float*));
-    MALLOC(smoke.velocitiesx[1],(smoke.size.x + 1) * sizeof(float*));
+    const int h = smoke.size.y;
+    const int w = smoke.size.x;
 
-    MALLOC(smoke.velocitiesy[0],(smoke.size.x * sizeof(float*)));
-    MALLOC(smoke.velocitiesy[1],(smoke.size.x * sizeof(float*)));
+    MALLOC(smoke.velocitiesx[0],(size_t)(w + 1) * h * sizeof(float));
+    MALLOC(smoke.velocitiesx[1],(size_t)(w + 1) * h * sizeof(float));
 
-    MALLOC(smoke.pressure, (smoke.size.x * sizeof(float*)));
+    MALLOC(smoke.velocitiesy[0],(size_t)w * (h+1) * sizeof(float));
+    MALLOC(smoke.velocitiesy[1],(size_t)w * (h+1) * sizeof(float));
 
-    MALLOC(smoke.smoke[0], (smoke.size.x * sizeof(fvec3*)));
-    MALLOC(smoke.smoke[1], (smoke.size.x * sizeof(fvec3*)));
+    MALLOC(smoke.pressure,(size_t) w * h * sizeof(float));
 
-    MALLOC(smoke.temp[0], (smoke.size.x * sizeof(float*)));
-    MALLOC(smoke.temp[1], (smoke.size.x * sizeof(float*)));
+    MALLOC(smoke.smoke[0],(size_t) w * h * sizeof(fvec3));
+    MALLOC(smoke.smoke[1],(size_t) w * h * sizeof(fvec3));
 
-    MALLOC(smoke.solid, (smoke.size.x * sizeof(int*)));
+    MALLOC(smoke.temp[0],(size_t) w * h * sizeof(float));
+    MALLOC(smoke.temp[1],(size_t) w * h * sizeof(float));
 
-    for (int i = 0; i < smoke.size.x; i++) {
-        MALLOC(smoke.velocitiesy[0][i], ((smoke.size.y + 1) * sizeof(float)));
-        MALLOC(smoke.velocitiesy[1][i], ((smoke.size.y + 1) * sizeof(float)));
-
-        MALLOC(smoke.pressure[i], (smoke.size.y * sizeof(float)));
-
-        MALLOC(smoke.smoke[0][i], (smoke.size.y * sizeof(fvec3)));
-        MALLOC(smoke.smoke[1][i], (smoke.size.y * sizeof(fvec3)));
-
-        MALLOC(smoke.temp[0][i], (smoke.size.y * sizeof(float)));
-        MALLOC(smoke.temp[1][i], (smoke.size.y * sizeof(float)));
-
-        MALLOC(smoke.solid[i], (smoke.size.y * sizeof(int)));
-    }
-
-    for (int i = 0; i <= smoke.size.x; i++) {
-        MALLOC(smoke.velocitiesx[0][i], (smoke.size.y * sizeof(float)));
-        MALLOC(smoke.velocitiesx[1][i], (smoke.size.y * sizeof(float)));
-    }
+    MALLOC(smoke.solid,(size_t) w * h * sizeof(int));
 
     smoke.s_idx = smoke.vx_idx = smoke.vy_idx = 0;
 }
@@ -90,49 +73,44 @@ void init_smoke() {
 void reset_smoke() {
     for (int x = 0; x < smoke.size.x; ++x) {
         for (int y = 0; y < smoke.size.y; ++y) {
+
+            int idx = IDX(x,y,smoke.size.x);
+
             if (x == 0 || y == 0 || x == smoke.size.x-1 || y == smoke.size.y-1) {
-                smoke.solid[x][y] = 1;
+                smoke.solid[idx] = 1;
             } else {
-                smoke.solid[x][y] = 0;
+                smoke.solid[idx] = 0;
             }
 
-            smoke.smoke[0][x][y] = (fvec3){0,0,0};
-            smoke.smoke[1][x][y] = (fvec3){0,0,0};
-            smoke.temp[0][x][y] = config.t_ambient;
-            smoke.temp[1][x][y] = config.t_ambient;
+            smoke.smoke[0][idx] = (fvec3){0,0,0};
+            smoke.smoke[1][idx] = (fvec3){0,0,0};
+            smoke.temp[0][idx] = config.t_ambient;
+            smoke.temp[1][idx] = config.t_ambient;
 
-            smoke.pressure[x][y] = 0;
+            smoke.pressure[idx] = 0;
         }
     }
 
     for (int x = 0; x < smoke.size.x+1; ++x) {
         for (int y = 0; y < smoke.size.y; ++y) {
-            smoke.velocitiesx[0][x][y] = 0;
-            smoke.velocitiesx[1][x][y] = 0;
+            int idx = IDX(x,y,smoke.size.x+1);
+
+            smoke.velocitiesx[0][idx] = 0;
+            smoke.velocitiesx[1][idx] = 0;
         }
     }
 
     for (int x = 0; x < smoke.size.x; ++x) {
         for (int y = 0; y < smoke.size.y+1; ++y) {
-            smoke.velocitiesy[0][x][y] = 0;
-            smoke.velocitiesy[1][x][y] = 0;
+            int idx = IDX(x,y,smoke.size.x);
+
+            smoke.velocitiesy[0][idx] = 0;
+            smoke.velocitiesy[1][idx] = 0;
         }
     }
 }
 
 void free_smoke() {
-    for (int x = 0; x < smoke.size.x; ++x) {
-        free(smoke.solid[x]);
-        free(smoke.pressure[x]);
-
-        free(smoke.smoke[0][x]);
-        free(smoke.smoke[1][x]);
-        free(smoke.temp[0][x]);
-        free(smoke.temp[1][x]);
-
-        free(smoke.velocitiesy[0][x]);
-        free(smoke.velocitiesy[1][x]);
-    }
     free(smoke.smoke[0]);
     free(smoke.temp[0]);
     free(smoke.smoke[1]);
@@ -143,11 +121,6 @@ void free_smoke() {
 
     free(smoke.velocitiesy[0]);
     free(smoke.velocitiesy[1]);
-
-    for (int x = 0; x < smoke.size.x+1; ++x) {
-            free(smoke.velocitiesx[0][x]);
-            free(smoke.velocitiesx[1][x]);
-    }
     free(smoke.velocitiesx[0]);
     free(smoke.velocitiesx[1]);
 }

@@ -15,14 +15,14 @@
 typedef struct environment {
     ivec2 size;
 
-    float** velocitiesx[2];
-    float** velocitiesy[2];
+    float* velocitiesx[2];
+    float* velocitiesy[2];
 
-    float** pressure;
-    fvec3** smoke[2];
-    float** temp[2];
+    float* pressure;
+    fvec3* smoke[2];
+    float* temp[2];
 
-    int** solid;
+    int* solid;
 
     int vx_idx, vy_idx;
     int s_idx;
