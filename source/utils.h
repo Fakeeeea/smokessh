@@ -1,5 +1,5 @@
 //
-// Created by daniele gabriele gambarota on 19/10/2026.
+// Created by aaa on 19/10/2026.
 //
 
 #ifndef SMOKESSH_SMOKE_UTILS_H

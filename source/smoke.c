@@ -9,10 +9,10 @@
 #include <stdio.h>
 
 #include "terminal.h"
-#include "smoke_physics.h"
-#include "smoke_graphics.h"
+#include "physics.h"
+#include "graphics.h"
 #include "config.h"
-#include "smoke_utils.h"
+#include "utils.h"
 
 environment smoke;
 ivec2 size = {DEFAULT_SIZE_X , DEFAULT_SIZE_Y};

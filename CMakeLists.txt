@@ -7,13 +7,13 @@ add_executable(smokessh source/smoke.c source/smoke.h
         source/terminal.h
         source/smoke_math.c
         source/smoke_math.h
-        source/smoke_physics.c
-        source/smoke_physics.h
-        source/smoke_graphics.c
-        source/smoke_graphics.h
-        source/smoke_parser.c
-        source/smoke_parser.h
-        source/smoke_utils.h
+        source/physics.c
+        source/physics.h
+        source/graphics.c
+        source/graphics.h
+        source/parser.c
+        source/parser.h
+        source/utils.h
         source/main.c
         source/config.h)
 

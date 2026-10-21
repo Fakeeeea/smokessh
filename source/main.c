@@ -10,9 +10,9 @@
 #include "config.h"
 #include "smoke.h"
 #include "terminal.h"
-#include "smoke_parser.h"
-#include "smoke_graphics.h"
-#include "smoke_physics.h"
+#include "parser.h"
+#include "graphics.h"
+#include "physics.h"
 
 smoke_config config = {
     .target_fps = 30,

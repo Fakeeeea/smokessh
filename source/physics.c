@@ -2,7 +2,7 @@
 // Created by aaa on 16/10/2026.
 //
 
-#include "smoke_physics.h"
+#include "physics.h"
 
 #include "config.h"
 

@@ -3,8 +3,8 @@
 //
 
 #include "smoke.h"
-#include "smoke_physics.h"
-#include "smoke_graphics.h"
+#include "physics.h"
+#include "graphics.h"
 
 #include <stdio.h>
 #include <stdlib.h>

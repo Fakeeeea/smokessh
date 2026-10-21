@@ -2,8 +2,8 @@
 // Created by aaa on 16/10/2026.
 //
 
-#include "smoke_parser.h"
-#include "smoke_utils.h"
+#include "parser.h"
+#include "utils.h"
 #include "config.h"
 
 #include <stdlib.h>
