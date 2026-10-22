@@ -15,7 +15,6 @@
 #define MAX_ANY_SIZE 128
 #define MIN_ANY_SIZE 10
 
-
 typedef struct environment {
     ivec2 size;
 

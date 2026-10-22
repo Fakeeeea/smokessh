@@ -84,11 +84,15 @@ void update_vx(environment* smoke, const smoke_config config) {
     const float k = - config.time_step / config.cell_size;
     for (int y = 0; y < smoke->size.y; ++y) {
         for (int x = 0; x <= smoke->size.x; ++x) {
-            if (is_solid(smoke, (ivec2){x,y}) || is_solid(smoke, (ivec2){x-1,y})) continue;
+
+            const int idx = IDX(x,y,smoke->size.x+1);
+            if (is_solid(smoke, (ivec2){x,y}) || is_solid(smoke, (ivec2){x-1,y})) {
+                smoke->velocitiesx[1-smoke->vx_idx][idx] = 0;
+                continue;
+            }
             float p_right = get_pressure(smoke, (ivec2){x,y});
             float p_left = get_pressure(smoke, (ivec2){x-1,y});
 
-            const int idx = IDX(x,y,smoke->size.x+1);
             smoke->velocitiesx[1-smoke->vx_idx][idx] = smoke->velocitiesx[smoke->vx_idx][idx] + k * (p_right - p_left);
         }
     }
@@ -97,11 +101,16 @@ void update_vy(environment* smoke, const smoke_config config) {
     const float k = - config.time_step / config.cell_size;
     for (int y = 0; y <= smoke->size.y; ++y) {
         for (int x = 0; x < smoke->size.x; ++x) {
-            if (is_solid(smoke, (ivec2){x,y}) || is_solid(smoke, (ivec2){x,y-1})) continue;
+
+            const int idx = IDX(x,y,smoke->size.x);
+            if (is_solid(smoke, (ivec2){x,y}) || is_solid(smoke, (ivec2){x,y-1})) {
+                smoke->velocitiesy[1-smoke->vy_idx][idx] = 0;
+                continue;
+            }
+
             float p_top = get_pressure(smoke, (ivec2){x,y});
             float p_bottom = get_pressure(smoke, (ivec2){x,y-1});
 
-            const int idx = IDX(x,y,smoke->size.x);
             smoke->velocitiesy[1-smoke->vy_idx][idx] = smoke->velocitiesy[smoke->vy_idx][idx] + k * (p_top - p_bottom);
         }
     }
@@ -134,7 +143,12 @@ void advect_smoke(environment* smoke, const smoke_config config) {
 void advect_vx(environment* smoke, const smoke_config config) {
     for (int y = 0; y < smoke->size.y; ++y) {
         for (int x = 0; x <= smoke->size.x; ++x) {
-            if (is_solid(smoke, (ivec2){x, y}) || is_solid(smoke, (ivec2){ x-1, y})) continue;
+
+            const int idx = IDX(x,y,smoke->size.x+1);
+            if (is_solid(smoke, (ivec2){x, y}) || is_solid(smoke, (ivec2){ x-1, y})) {
+                smoke->velocitiesx[1-smoke->vx_idx][idx] = 0.0f;
+                continue;
+            }
 
             const fvec2 world_pos = { (float)x * config.cell_size, ((float)y + 0.5f) * config.cell_size};
             const fvec2 v = get_interpolated_velocity(smoke, config, world_pos);
@@ -142,7 +156,6 @@ void advect_vx(environment* smoke, const smoke_config config) {
 
             const fvec2 vx_uv = {comes_from.x / config.cell_size, comes_from.y / config.cell_size - 0.5f};
 
-            const int idx = IDX(x,y,smoke->size.x+1);
             smoke->velocitiesx[1-smoke->vx_idx][idx] = sample_bilinear(smoke->velocitiesx[smoke->vx_idx], smoke->size.x+1, smoke->size.y, vx_uv.x, vx_uv.y);;
         }
     }
@@ -150,7 +163,12 @@ void advect_vx(environment* smoke, const smoke_config config) {
 void advect_vy(environment* smoke, const smoke_config config) {
     for (int y = 0; y <= smoke->size.y; ++y) {
         for (int x = 0; x < smoke->size.x; ++x) {
-            if (is_solid(smoke, (ivec2){ x, y}) || is_solid(smoke, (ivec2){ x, y-1})) continue;
+
+            const int idx = IDX(x,y,smoke->size.x);
+            if (is_solid(smoke, (ivec2){ x, y}) || is_solid(smoke, (ivec2){ x, y-1})) {
+                smoke->velocitiesy[1-smoke->vy_idx][idx] = 0.0f;
+                continue;
+            }
 
             const fvec2 world_pos = {((float)x + 0.5f) * config.cell_size, (float)y * config.cell_size};
             const fvec2 v = get_interpolated_velocity(smoke, config, world_pos);
@@ -158,7 +176,6 @@ void advect_vy(environment* smoke, const smoke_config config) {
 
             const fvec2 vx_uv = {comes_from.x / config.cell_size - 0.5f, comes_from.y / config.cell_size};
 
-            const int idx = IDX(x,y,smoke->size.x);
             smoke->velocitiesy[1-smoke->vy_idx][idx] = sample_bilinear(smoke->velocitiesy[smoke->vy_idx], smoke->size.x, smoke->size.y+1, vx_uv.x, vx_uv.y);;
         }
     }
@@ -236,15 +253,4 @@ void update_solid_map(environment* smoke, const obstacle o) {
             }
         }
     }
-}
-
-void handle_input(const environment* smoke, obstacle *o, ivec2 input) {
-    o->location.x += input.x;
-    o->location.y += input.y;
-
-    if (o->location.x >= smoke->size.x) {o->location.x = smoke->size.x;}
-    if (o->location.x < 0) {o->location.x = 0;}
-
-    if (o->location.y >= smoke->size.y) {o->location.y = smoke->size.y;}
-    if (o->location.y < 0) {o->location.y = 0;}
 }

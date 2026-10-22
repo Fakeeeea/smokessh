@@ -23,7 +23,7 @@ simulation init_simulation(const smoke_config config, const ivec2 size) {
 
     init_env(&s.env, size);
     parse_emitters(s.config, &s.emitters, &s.e_num);
-    s.obstacle = init_obstacle(size, 3);
+    s.obstacle = init_obstacle(size, s.config.obstacle_radius);
 
     reset_env(&s.env, config);
 
@@ -40,7 +40,7 @@ void restart_simulation(simulation *s, ivec2 size) {
     free_env(&s->env);
     init_env(&s->env, size);
     reset_env(&s->env, s->config);
-    s->obstacle = init_obstacle(size, 3);
+    s->obstacle = init_obstacle(size, s->config.obstacle_radius);
 }
 
 void run(environment* smoke, const smoke_config config, obstacle o, const emitter* e, const int e_num) {

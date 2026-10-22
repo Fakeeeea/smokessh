@@ -134,8 +134,7 @@ void init_graphics() {
     hide_cursor();
 }
 
-//todo just pass size
-static void print_header(const environment* smoke) {
+static void print_header(ivec2 size) {
     const char *title = " q to quit";
 
     int title_len = 10;
@@ -146,7 +145,7 @@ static void print_header(const environment* smoke) {
     set_bold();
 
     push_str(title);
-    for (int x = title_len; x < smoke->size.x; ++x) {
+    for (int x = title_len; x < size.x; ++x) {
         push_char(' ');
     }
     reset_color();
@@ -158,7 +157,7 @@ void print_smoke(const environment* smoke) {
     const char levels[] = " .:-=+*#%@";
     int n_levels = sizeof(levels) -1;
 
-    print_header(smoke);
+    print_header(smoke->size);
 
     for (int sy = 1; sy < smoke->size.y; ++sy) {
         int y = smoke->size.y - 1 - sy;

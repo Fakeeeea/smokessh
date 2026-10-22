@@ -20,6 +20,7 @@ smoke_config config = {
     .t_ambient = T_AMBIENT,
     .cell_size = CELL_SIZE,
     .time_step = TIMESTEP,
+    .obstacle_radius = INIT_RADIUS,
 };
 
 simulation sim;
@@ -27,7 +28,7 @@ simulation sim;
 void parse_flags(int argc, char *argv[]) {
     int opt;
 
-    while ((opt = getopt(argc, argv, "f:e:t:s:c:")) != -1) {
+    while ((opt = getopt(argc, argv, "f:e:t:s:c:o:")) != -1) {
         switch (opt) {
             case 'f':
                 config.target_fps = atoi(optarg);
@@ -46,8 +47,10 @@ void parse_flags(int argc, char *argv[]) {
                 config.cell_size = atof(optarg);
                 config.cell_size = config.cell_size <= 0 ? 0.1f : config.cell_size;
                 break;
+            case '0':
+                config.obstacle_radius = atoi(optarg);
             default:
-                fprintf(stderr, "Usage %s [-f target_fps]\n [-e emitters_file]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n", argv[0]);
+                fprintf(stderr, "Usage %s [-f target_fps]\n [-e emitters_file]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }
@@ -84,7 +87,7 @@ int main(int argc, char *argv[]) {
             break;
         }
 
-        handle_input(&sim.env, &sim.obstacle, mov);
+        handle_obstacle_movement(&sim.obstacle, mov, size);
         run(&sim.env, sim.config, sim.obstacle, sim.emitters, sim.e_num);
         print_smoke(&sim.env);
 

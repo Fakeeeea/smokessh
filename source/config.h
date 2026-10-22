@@ -10,6 +10,7 @@ typedef struct smoke_config {
     char *emitter_file;
 
     int t_ambient;
+    int obstacle_radius;
     float cell_size;
     float time_step;
 }smoke_config;
