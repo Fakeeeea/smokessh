@@ -14,6 +14,4 @@ typedef struct smoke_config {
     float time_step;
 }smoke_config;
 
-extern smoke_config config;
-
 #endif //SMOKESSH_CONFIG_H

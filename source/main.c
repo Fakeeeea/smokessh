@@ -8,9 +8,8 @@
 #include <unistd.h>
 
 #include "config.h"
-#include "smoke.h"
+#include "simulation.h"
 #include "terminal.h"
-#include "parser.h"
 #include "graphics.h"
 #include "physics.h"
 
@@ -22,6 +21,8 @@ smoke_config config = {
     .cell_size = CELL_SIZE,
     .time_step = TIMESTEP,
 };
+
+simulation sim;
 
 void parse_flags(int argc, char *argv[]) {
     int opt;
@@ -53,14 +54,14 @@ void parse_flags(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+    ivec2 size;
+
     parse_flags(argc, argv);
     set_handlers();
     detect_size(&size);
-    init_smoke();
-    init_obstacle();
+
     init_graphics();
-    reset_smoke();
-    parse_emitters(&e, &e_num);
+    sim = init_simulation(config, size);
     setup_terminal();
 
     const long target_frame_time_us = (long)(1000000.0f / (float)config.target_fps);
@@ -69,8 +70,10 @@ int main(int argc, char *argv[]) {
 
     while (1) {
 
-        if (smoke.resize_pending) {
-            restart_simulation();
+        if (should_resize()) {
+            detect_size(&size);
+            restart_simulation(&sim, size);
+            init_graphics();
         }
 
         clock_gettime(CLOCK_MONOTONIC, &start_time);
@@ -81,9 +84,9 @@ int main(int argc, char *argv[]) {
             break;
         }
 
-        handle_input(mov);
-        run();
-        print_smoke();
+        handle_input(&sim.env, &sim.obstacle, mov);
+        run(&sim.env, sim.config, sim.obstacle, sim.emitters, sim.e_num);
+        print_smoke(&sim.env);
 
         clock_gettime(CLOCK_MONOTONIC, &end_time);
 
@@ -95,6 +98,6 @@ int main(int argc, char *argv[]) {
 
     reset_terminal();
     show_cursor();
-    free_smoke();
+    free_simulation(&sim);
     return 0;
 }

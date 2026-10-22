@@ -2,7 +2,7 @@
 // Created by aaa on 16/10/2026.
 //
 
-#include "smoke.h"
+#include "simulation.h"
 #include "physics.h"
 #include "graphics.h"
 #include "utils.h"
@@ -13,8 +13,6 @@
 #include <math.h>
 #include <errno.h>
 #include <poll.h>
-
-extern environment smoke;
 
 static char frame_buffer[BUFFER_SIZE];
 static char drawn_ch[MAX_ANY_SIZE][MAX_ANY_SIZE];
@@ -136,7 +134,8 @@ void init_graphics() {
     hide_cursor();
 }
 
-static void print_header() {
+//todo just pass size
+static void print_header(const environment* smoke) {
     const char *title = " q to quit";
 
     int title_len = 10;
@@ -147,34 +146,34 @@ static void print_header() {
     set_bold();
 
     push_str(title);
-    for (int x = title_len; x < smoke.size.x; ++x) {
+    for (int x = title_len; x < smoke->size.x; ++x) {
         push_char(' ');
     }
     reset_color();
 }
 
-void print_smoke() {
+void print_smoke(const environment* smoke) {
     cur_row = cur_col = cur_color = -1;
 
     const char levels[] = " .:-=+*#%@";
     int n_levels = sizeof(levels) -1;
 
-    print_header();
+    print_header(smoke);
 
-    for (int sy = 1; sy < smoke.size.y; ++sy) {
-        int y = smoke.size.y - 1 - sy;
+    for (int sy = 1; sy < smoke->size.y; ++sy) {
+        int y = smoke->size.y - 1 - sy;
 
-        for (int x = 0; x < smoke.size.x; ++x) {
-            const int idx = IDX(x,y,smoke.size.x);
+        for (int x = 0; x < smoke->size.x; ++x) {
+            const int idx = IDX(x,y,smoke->size.x);
 
             int col;
             char ch;
 
-            if (is_solid((ivec2){x,y})) {
+            if (is_solid(smoke, (ivec2){x,y})) {
                 col = 244;
                 ch = '&';
             } else {
-                fvec3 s = smoke.smoke[smoke.s_idx][idx];
+                fvec3 s = smoke->smoke[smoke->s_idx][idx];
                 float r = s.x;
                 float g = s.y;
                 float b = s.z;
@@ -207,7 +206,7 @@ void print_smoke() {
 
             cur_row = sy; cur_col = x+1;
 
-            if (x == smoke.size.x - 1) cur_row = -1;
+            if (x == smoke->size.x - 1) cur_row = -1;
 
             drawn_ch[sy][x] = ch; drawn_col[sy][x] = col;
         }

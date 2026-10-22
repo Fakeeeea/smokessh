@@ -2,10 +2,10 @@
 // Created by aaa on 15/10/2026.
 //
 
-#include "smoke_math.h"
+#include "sim_math.h"
 #include <math.h>
 
-float sample_bilinear(float* data, const int width, const int height, const float x, const float y) {
+float sample_bilinear(const float* data, const int width, const int height, const float x, const float y) {
     int x0 = (int) floorf(x);
     int y0 = (int) floorf(y);
 
@@ -28,7 +28,7 @@ float sample_bilinear(float* data, const int width, const int height, const floa
     return lerp(a, b, ty);
 }
 
-fvec3 sample_bilinear_fvec3(fvec3* data, int width, int height, float x, float y) {
+fvec3 sample_bilinear_fvec3(const fvec3* data, int width, int height, float x, float y) {
     int x0 = (int) floorf(x);
     int y0 = (int) floorf(y);
 
@@ -63,6 +63,6 @@ fvec3 sample_bilinear_fvec3(fvec3* data, int width, int height, float x, float y
     };
 }
 
-float lerp(float a, float b, float t) {
+float lerp(const float a, const float b, const float t) {
     return a + t * (b-a);
 }

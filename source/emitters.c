@@ -1,16 +1,14 @@
 //
-// Created by aaa on 16/10/2026.
+// Created by aaa on 22/10/2026.
 //
 
-#include "parser.h"
+#include "emitters.h"
 #include "utils.h"
-#include "config.h"
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <stdlib.h>
 
-void parse_emitters(emitter** emitter_array, int* emitter_counter) {
+void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_counter) {
     FILE* fptr;
 
     if (config.emitter_file == NULL) {
@@ -18,7 +16,7 @@ void parse_emitters(emitter** emitter_array, int* emitter_counter) {
     }
 
     if ((fptr = fopen(config.emitter_file, "r")) != NULL) {
-        if (fscanf(fptr, "C:%d", emitter_counter)) {
+        if (fscanf(fptr, "C:%d", emitter_counter) == 1) {
 
             MALLOC(*emitter_array, (*emitter_counter * sizeof(emitter)));
 
@@ -37,5 +35,13 @@ void parse_emitters(emitter** emitter_array, int* emitter_counter) {
 
     } else {
         *emitter_counter = 0;
+    }
+}
+
+void free_emitters(emitter** emitters, int* e_num) {
+    if (*emitters != NULL) {
+        free(*emitters);
+        *emitters = NULL;
+        *e_num = 0;
     }
 }

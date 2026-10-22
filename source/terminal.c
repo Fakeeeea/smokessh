@@ -9,10 +9,13 @@
 #include <stdio.h>
 #include <termios.h>
 #include <fcntl.h>
-#include "smoke.h"
+#include "simulation.h"
 
 static struct termios old, new;
 static int oldf;
+
+static sig_atomic_t resize_pending = 0;
+struct sigaction sa;
 
 void setup_terminal() {
     tcgetattr(STDIN_FILENO, &old);
@@ -64,8 +67,6 @@ ivec2 parse_input() {
     return mov;
 }
 
-extern environment smoke;
-
 void detect_size(ivec2* size) {
     struct winsize ws;
 
@@ -82,9 +83,25 @@ void detect_size(ivec2* size) {
 
     size->y--; //first line dedicated to header
 
-    smoke.resize_pending = 0;
+    resize_pending = 0;
 }
 
-void resize_handler(int sig) {
-    smoke.resize_pending = 1;
+static void resize_handler(int sig) {
+    resize_pending = 1;
+}
+
+void set_handlers() {
+    sa.sa_handler = resize_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+
+    sigaction(SIGWINCH, &sa, NULL);
+}
+
+int should_resize() {
+    return resize_pending;
+}
+
+void toggle_resize() {
+    resize_pending = 1 - resize_pending;
 }

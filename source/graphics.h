@@ -10,7 +10,7 @@
 #define BUFFER_SIZE (1024 * 1024)
 
 void init_graphics();
-void print_smoke();
+void print_smoke(const environment* smoke);
 void clear_screen();
 void show_cursor();
 

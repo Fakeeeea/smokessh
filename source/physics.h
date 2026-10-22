@@ -5,31 +5,32 @@
 #ifndef SMOKESSH_SMOKE_PHYSICS_H
 #define SMOKESSH_SMOKE_PHYSICS_H
 
-#include "smoke.h"
+#include "config.h"
+#include "simulation.h"
 
 #define T_AMBIENT 273
 #define CELL_SIZE 0.1f
 #define TIMESTEP (0.0167f) // 1/60
 
-int is_solid(ivec2 p);
+int is_solid(const environment* smoke, ivec2 p);
 
-float get_vx(ivec2 p);
-float get_vy(ivec2 p);
+float get_vx(const environment* smoke, ivec2 p);
+float get_vy(const environment* smoke, ivec2 p);
 
-float get_pressure(ivec2 p);
+float get_pressure(const environment* smoke, ivec2 p);
 
-void solve_pressure_iteration();
-void solve_pressure();
-void update_vx();
-void update_vy();
-void advect_smoke();
-void advect_vx();
-void advect_vy();
-void apply_temperature();
-void update_solid_map();
-void handle_input(ivec2 input);
-void handle_emitter();
+void solve_pressure_iteration(environment* smoke, smoke_config config);
+void solve_pressure(environment* smoke, smoke_config config);
+void update_vx(environment* smoke, smoke_config config);
+void update_vy(environment* smoke, smoke_config config);
+void advect_smoke(environment* smoke, smoke_config config);
+void advect_vx(environment* smoke, smoke_config config);
+void advect_vy(environment* smoke, smoke_config config);
+void apply_temperature(environment* smoke, smoke_config config);
+void update_solid_map(environment* smoke, obstacle o);
+void handle_input(const environment* smoke, obstacle *o, ivec2 input);
+void handle_emitter(environment* smoke, const emitter* emitters, int e_num);
 
-fvec2 get_interpolated_velocity(fvec2 p);
+fvec2 get_interpolated_velocity(const environment* smoke, smoke_config config, fvec2 p);
 
 #endif //SMOKESSH_SMOKE_PHYSICS_H
