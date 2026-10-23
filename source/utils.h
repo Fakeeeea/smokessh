@@ -14,6 +14,16 @@ do {                        \
     }                       \
 }while (0)                  \
 
+#define FREE(ptr)           \
+do {                        \
+    if ((ptr) == NULL) {    \
+        perror("free");     \
+        exit(EXIT_FAILURE); \
+    } else {                \
+        free(ptr);          \
+    }                       \
+}while (0)                  \
+
 #define IDX(x,y,w) ((size_t)(y) * (w) + (x))
 
 #endif //SMOKESSH_SMOKE_UTILS_H

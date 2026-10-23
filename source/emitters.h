@@ -14,7 +14,7 @@ typedef struct emitter {
     float temperature;
 }emitter;
 
-void parse_emitters(smoke_config config, emitter** emitters, int* e_num);
+void parse_emitters(smoke_config config, emitter** emitters, int* e_num, ivec2 size);
 void free_emitters(emitter** emitters, int* e_num);
 
 #endif //SMOKESSH_EMITTERS_H

@@ -13,6 +13,7 @@
 #include <math.h>
 #include <errno.h>
 #include <poll.h>
+#include <string.h>
 
 static char frame_buffer[BUFFER_SIZE];
 static char drawn_ch[MAX_ANY_SIZE][MAX_ANY_SIZE];
@@ -34,6 +35,21 @@ static void push_str(const char* str) {
     while (*str && buf_len < BUFFER_SIZE - 1) {
         frame_buffer[buf_len++] = *str++;
     }
+}
+
+static int push_str_truncated(char* str, int max_len) {
+    if (max_len <= 0) return 0;
+
+    const int len = (int)strlen(str);
+    if (len <= max_len) {
+        push_str(str);
+        return len;
+    }
+
+    const int keep = max_len > 3 ? max_len - 3 : 0;
+    for (int i = 0; i < keep; ++i) push_char(str[i]);
+    for (int i = keep; i < max_len; ++i) push_char('.');
+    return max_len;
 }
 
 static void push_int(const int n) {
@@ -123,6 +139,15 @@ static void set_bold() {
     push_str("\033[1m");
 }
 
+static int push_float(float n) {
+    char buf[256];
+
+    int written_bytes = sprintf(buf, "%.3f", n);
+    push_str(buf);
+
+    return written_bytes;
+}
+
 void init_graphics() {
     for (int y = 0; y < MAX_ANY_SIZE; ++y) {
         for (int x = 0; x < MAX_ANY_SIZE; ++x) {
@@ -135,17 +160,14 @@ void init_graphics() {
 }
 
 static void print_header(ivec2 size) {
-    const char *title = " q to quit";
-
-    int title_len = 10;
 
     move_cursor(1,1);
     set_background(get_closest_color_index(0,250,250));
     set_color_rgb(0,0,0);
     set_bold();
+    int written_bytes = push_str_truncated("Press q to quit - ./smokessh -", size.x);
 
-    push_str(title);
-    for (int x = title_len; x < size.x; ++x) {
+    for (int x = written_bytes; x < size.x; ++x) {
         push_char(' ');
     }
     reset_color();

@@ -13,6 +13,7 @@ typedef struct smoke_config {
     int obstacle_radius;
     float cell_size;
     float time_step;
+    float wind;
 }smoke_config;
 
 #endif //SMOKESSH_CONFIG_H

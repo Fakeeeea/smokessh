@@ -2,13 +2,15 @@
 // Created by aaa on 16/10/2026.
 //
 
+#include <math.h>
+
 #include "physics.h"
 #include "config.h"
 #include "utils.h"
 
 int is_solid(const environment* smoke, const ivec2 p) {
     if (p.x < 0 || p.y < 0 || p.x >= smoke->size.x || p.y >= smoke->size.y) {
-        return 1;
+        return 0;
     }
 
     return smoke->solid[IDX(p.x,p.y,smoke->size.x)];
@@ -68,7 +70,6 @@ void solve_pressure_iteration(environment* smoke, const smoke_config config) {
 
             float p_sum = p_left + p_right + p_top + p_bottom;
             float p = (p_sum - config.cell_size * delta_v / config.time_step) / (float) f_sum;
-
             smoke->pressure[IDX(x,y,smoke->size.x)] = p;
         }
     }
@@ -80,6 +81,7 @@ void solve_pressure(environment* smoke, const smoke_config config) {
         solve_pressure_iteration(smoke, config);
     }
 }
+
 void update_vx(environment* smoke, const smoke_config config) {
     const float k = - config.time_step / config.cell_size;
     for (int y = 0; y < smoke->size.y; ++y) {
@@ -231,14 +233,16 @@ fvec2 get_interpolated_velocity(const environment* smoke, const smoke_config con
     return v;
 }
 
-void update_solid_map(environment* smoke, const obstacle o) {
+void update_solid_map(environment* smoke, const smoke_config config, const obstacle o) {
     const int r_squared = o.radius * o.radius;
 
     for (int y = 0; y < smoke->size.y; ++y) {
         for (int x = 0; x < smoke->size.x; ++x) {
             const int idx = IDX(x,y,smoke->size.x);
 
-            if (x == 0 || y == 0 || x == smoke->size.x-1 || y == smoke->size.y-1) {
+            const int cond = config.wind == 0 ? (x == 0 || y == 0 || x == smoke->size.x-1 || y == smoke->size.y-1) :
+                                            (y == 0 || y == smoke->size.y-1);
+            if (cond) {
                 smoke->solid[idx] = 1;
                 continue;
             }
@@ -252,5 +256,16 @@ void update_solid_map(environment* smoke, const obstacle o) {
                 smoke->solid[idx] = 0;
             }
         }
+    }
+}
+
+void apply_wind(environment* smoke, smoke_config config) {
+    int x = config.wind >= 0 ? 0 : smoke->size.x - 1;
+
+    for (int y = 0; y < smoke->size.y; ++y) {
+        const int idx = IDX(x,y,smoke->size.x+1);
+
+        if (!is_solid(smoke, (ivec2){x,y}))
+            smoke->velocitiesx[smoke->vx_idx][idx] = config.wind;
     }
 }

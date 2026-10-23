@@ -41,11 +41,11 @@ typedef struct simulation {
     smoke_config config;
 }simulation;
 
-void run(environment* smoke, smoke_config config, obstacle o, const emitter* e, int e_num);
+void run(simulation* sim);
 
 simulation init_simulation(smoke_config config, ivec2 size);
-void free_simulation(simulation *s);
-void restart_simulation(simulation *s, ivec2 size);
+void free_simulation(simulation* s);
+void restart_simulation(simulation* s, ivec2 size);
 
 void init_env(environment* env, ivec2 size);
 void reset_env(environment* env, smoke_config config);

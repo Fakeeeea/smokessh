@@ -16,6 +16,6 @@ typedef struct obstacle {
 
 obstacle init_obstacle(ivec2 size, int radius);
 void move_obstacle(obstacle *o, ivec2 new_pos, ivec2 size);
-void handle_obstacle_movement(obstacle *o, const ivec2 mov, const ivec2 size);
+void handle_obstacle_movement(obstacle *o, ivec2 mov, ivec2 size);
 
 #endif //SMOKESSH_OBSTACLES_H
