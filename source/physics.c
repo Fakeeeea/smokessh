@@ -16,6 +16,13 @@ int is_solid(const environment* smoke, const ivec2 p) {
     return smoke->solid[IDX(p.x,p.y,smoke->size.x)];
 }
 
+int in_bounds(const environment* smoke, const ivec2 p) {
+    if (p.x < 0 || p.y < 0 || p.x >= smoke->size.x || p.y >= smoke->size.y) {
+        return 0;
+    }
+    return 1;
+}
+
 float get_vx(const environment* smoke, const ivec2 p) {
     if (p.x < 0 || p.y < 0 || p.x >= (smoke->size.x + 1) || p.y >= smoke->size.y) {
         return 0;
@@ -212,7 +219,7 @@ void apply_temperature(environment* smoke, const smoke_config config) {
 void handle_emitter(environment* smoke, const emitter* emitters, const int e_num) {
     for (int i = 0; i < e_num; ++i) {
         emitter e = emitters[i];
-        if (!is_solid(smoke, e.location)) {
+        if (!is_solid(smoke, e.location) && in_bounds(smoke, e.location)) {
 
             const int idx = IDX(e.location.x,e.location.y,smoke->size.x);
             smoke->smoke[smoke->s_idx][idx] = e.densities;

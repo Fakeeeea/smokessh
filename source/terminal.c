@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <termios.h>
 #include <fcntl.h>
+#include <stdlib.h>
+
 #include "simulation.h"
 
 static struct termios old, new;
@@ -34,6 +36,14 @@ void setup_terminal() {
 void reset_terminal() {
     tcsetattr(STDIN_FILENO, TCSANOW, &old);
     fcntl(STDIN_FILENO, F_SETFL, oldf);
+}
+
+void reattach_tty() {
+    int fd = open("/dev/tty", O_RDONLY);
+    if (fd < 0) exit(EXIT_FAILURE);
+    if (dup2(fd, STDIN_FILENO) < 0) {close(fd); exit(EXIT_FAILURE);}
+    close(fd);
+    clearerr(stdin);
 }
 
 ivec2 parse_input() {
@@ -70,7 +80,7 @@ ivec2 parse_input() {
 void detect_size(ivec2* size) {
     struct winsize ws;
 
-    if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
         *size = (ivec2){.x = ws.ws_col, .y = ws.ws_row};
         if (size->x < MIN_ANY_SIZE) size->x = MIN_ANY_SIZE;
         if (size->y < MIN_ANY_SIZE) size->y = MIN_ANY_SIZE;

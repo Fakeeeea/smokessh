@@ -70,6 +70,9 @@ int main(int argc, char *argv[]) {
 
     init_graphics();
     sim = init_simulation(config, size);
+
+    if (!isatty(STDIN_FILENO)) reattach_tty();
+
     setup_terminal();
 
     const long target_frame_time_us = (long)(1000000.0f / (float)config.target_fps);

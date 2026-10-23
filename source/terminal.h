@@ -24,4 +24,6 @@ void set_handlers();
 int should_resize();
 void toggle_resize();
 
+void reattach_tty();
+
 #endif //SMOKESSH_TERMINAL_H

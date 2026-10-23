@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define MAX_LINE 256
 #define DEFAULT_EMITTER_FILE "default"
@@ -16,12 +17,22 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
     *emitter_array = NULL;
     *emitter_counter = 0;
 
-    const char* path = (config.emitter_file) ? config.emitter_file : DEFAULT_EMITTER_FILE;
+    int from_stdin = 0;
+    FILE* fptr;
 
-    FILE* fptr = fopen(path, "r");
-    if (!fptr) {
-        fprintf(stderr, "emitters: cannot open '%s'\n", path);
-        exit(EXIT_FAILURE);
+    if (config.emitter_file && strcmp(config.emitter_file, "-") != 0) {
+        fptr = fopen(config.emitter_file, "r");
+
+        if (!fptr) {
+            fprintf(stderr, "emitters: cannot open '%s'\n", config.emitter_file);
+            exit(EXIT_FAILURE);
+        }
+
+    } else if (config.emitter_file || !isatty(STDIN_FILENO)) {
+        fptr = stdin;
+        from_stdin = 1;
+    } else {
+        fptr = fopen(DEFAULT_EMITTER_FILE, "r");
     }
 
     emitter* arr = NULL;
@@ -93,23 +104,23 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
                 goto fail;
             }
         } else {
-            fprintf(stderr, "emitters: read error on '%s'\n", path);
+            fprintf(stderr, "emitters: read error on '%s'\n", config.emitter_file);
             goto fail;
         }
     }
 
     if (ferror(fptr)) {
-        fprintf(stderr, "emitters: read error on '%s'\n", path);
+        fprintf(stderr, "emitters: read error on '%s'\n", config.emitter_file);
         goto fail;
     }
 
-    fclose(fptr);
+    if (!from_stdin) fclose(fptr);
     *emitter_array = arr;
     *emitter_counter = count;
     return;
 
     fail:
-    fclose(fptr);
+    if (!from_stdin) fclose(fptr);
     free(arr);
     exit(EXIT_FAILURE);
 }
