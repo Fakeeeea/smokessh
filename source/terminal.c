@@ -46,35 +46,39 @@ void reattach_tty() {
     clearerr(stdin);
 }
 
-ivec2 parse_input() {
-    ivec2 mov = {.x = 0, .y = 0};
+input parse_input() {
+    input out = {
+        .mov = (ivec2) {.x = 0, .y = 0},
+        .code = MOV,
+    };
+
     int c;
     while ((c = getchar()) != EOF) {
         switch (c) {
             case 'a':
             case 'A':
-                mov.x--;
+                out.mov.x--;
                 break;
             case 'd':
             case 'D':
-                mov.x++;
+                out.mov.x++;
                 break;
             case 'w':
             case 'W':
-                mov.y++;
+                out.mov.y++;
                 break;
             case 's':
             case 'S':
-                mov.y--;
+                out.mov.y--;
                 break;
             case 'q':
-                mov.y = mov.x = QUIT;
+                out.code = QUIT;
             default:
                 break;
         }
     }
 
-    return mov;
+    return out;
 }
 
 void detect_size(ivec2* size) {

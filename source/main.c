@@ -89,13 +89,11 @@ int main(int argc, char *argv[]) {
 
         clock_gettime(CLOCK_MONOTONIC, &start_time);
 
-        ivec2 mov = parse_input();
+        input in = parse_input();
 
-        if (mov.x == QUIT && mov.y == QUIT) {
-            break;
-        }
+        if (in.code == QUIT) { break; }
 
-        handle_obstacle_movement(&sim.obstacle, mov, size);
+        handle_obstacle_movement(&sim.obstacle, in.mov, size);
         run(&sim);
         print_smoke(&sim.env);
 

@@ -12,12 +12,18 @@
 #define DEFAULT_SIZE_Y 30
 
 #define QUIT 42
+#define MOV 0
+
+typedef struct input {
+    int code;
+    ivec2 mov;
+}input;
 
 void detect_size(ivec2* size);
 
 void setup_terminal();
 void reset_terminal();
-ivec2 parse_input();
+input parse_input();
 
 void set_handlers();
 
