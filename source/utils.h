@@ -16,12 +16,8 @@ do {                        \
 
 #define FREE(ptr)           \
 do {                        \
-    if ((ptr) == NULL) {    \
-        perror("free");     \
-        exit(EXIT_FAILURE); \
-    } else {                \
         free(ptr);          \
-    }                       \
+        (ptr) = NULL;       \
 }while (0)                  \
 
 #define IDX(x,y,w) ((size_t)(y) * (w) + (x))

@@ -28,8 +28,11 @@ input parse_input();
 void set_handlers();
 
 int should_resize();
-void toggle_resize();
+int should_keep_running();
 
 void reattach_tty();
+
+void register_simulation(simulation *sim);
+void set_atexit();
 
 #endif //SMOKESSH_TERMINAL_H

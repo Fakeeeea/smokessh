@@ -33,6 +33,11 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
         from_stdin = 1;
     } else {
         fptr = fopen(DEFAULT_EMITTER_FILE, "r");
+
+        if (!fptr) {
+            fprintf(stderr, "emitters: cannot open '%s'\n", DEFAULT_EMITTER_FILE);
+            exit(EXIT_FAILURE);
+        }
     }
 
     emitter* arr = NULL;
@@ -51,7 +56,7 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
         char* hash = strchr(line, '#');
         if (hash) *hash = '\0';
         char *p = line;
-        while (*p == ' ' || *p == 't') p++;
+        while (*p == ' ' || *p == '\t') p++;
         if (*p == '\0' || *p == '\n' || *p == '\r') continue;
 
         char word[16], unit[16];
@@ -71,7 +76,7 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
         } else if (strcmp(word, "emitter") == 0) {
             float x, y, d0, d1, d2, temp;
             if (sscanf(p, "%*s %f %f %f %f %f %f", &x, &y, &d0, &d1, &d2, &temp) != 6) {
-                fprintf(stderr, "emitters:%d: expected 'emitter x y d0 d1 d2 temp'\n'", lineno);
+                fprintf(stderr, "emitters:%d: expected 'emitter x y d0 d1 d2 temp'\n", lineno);
                 goto fail;
             }
 
@@ -79,7 +84,7 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
                 int new_cap = cap ? cap * 2 : 8;
                 emitter* tmp = realloc(arr, (size_t)new_cap * sizeof(*arr));
                 if (!tmp) {
-                    fprintf(stderr, "mitters: out of memory\n");
+                    fprintf(stderr, "emitters: out of memory\n");
                     goto fail;
                 }
                 arr = tmp;
@@ -104,13 +109,13 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
                 goto fail;
             }
         } else {
-            fprintf(stderr, "emitters: read error on '%s'\n", config.emitter_file);
+            fprintf(stderr, "emitters: read error on '%s'\n", config.emitter_file ? config.emitter_file : "null");
             goto fail;
         }
     }
 
     if (ferror(fptr)) {
-        fprintf(stderr, "emitters: read error on '%s'\n", config.emitter_file);
+        fprintf(stderr, "emitters: read error on '%s'\n", config.emitter_file ? config.emitter_file : "null");
         goto fail;
     }
 

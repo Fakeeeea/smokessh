@@ -11,13 +11,18 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
+#include "graphics.h"
 #include "simulation.h"
 
 static struct termios old, new;
 static int oldf;
 
-static sig_atomic_t resize_pending = 0;
+static volatile sig_atomic_t resize_pending = 0;
+static volatile sig_atomic_t keep_running = 1;
+
 struct sigaction sa;
+
+struct sigaction sa_int;
 
 void setup_terminal() {
     tcgetattr(STDIN_FILENO, &old);
@@ -72,6 +77,7 @@ input parse_input() {
                 out.mov.y--;
                 break;
             case 'q':
+            case 'Q':
                 out.code = QUIT;
             default:
                 break;
@@ -101,7 +107,24 @@ void detect_size(ivec2* size) {
 }
 
 static void resize_handler(int sig) {
+    (void)sig;
     resize_pending = 1;
+}
+
+static void sigint_handler(int sig) {
+    (void)sig;
+    keep_running = 0;
+}
+
+static simulation *registered_simulation;
+
+void register_simulation(simulation *sim) {
+    registered_simulation = sim;
+}
+
+static void free_simulation_wrapper() {
+    if (registered_simulation != NULL)
+        free_simulation(registered_simulation);
 }
 
 void set_handlers() {
@@ -110,12 +133,24 @@ void set_handlers() {
     sa.sa_flags = SA_RESTART;
 
     sigaction(SIGWINCH, &sa, NULL);
+
+    sa_int.sa_handler = sigint_handler;
+    sigemptyset(&sa_int.sa_mask);
+    sa.sa_flags = 0;
+
+    sigaction(SIGINT, &sa_int, NULL);
+}
+
+void set_atexit() {
+    atexit(reset_terminal);
+    atexit(free_simulation_wrapper);
+    atexit(clean_screen);
 }
 
 int should_resize() {
     return resize_pending;
 }
 
-void toggle_resize() {
-    resize_pending = 1 - resize_pending;
+int should_keep_running() {
+    return keep_running;
 }

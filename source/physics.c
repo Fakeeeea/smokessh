@@ -267,7 +267,7 @@ void update_solid_map(environment* smoke, const smoke_config config, const obsta
 }
 
 void apply_wind(environment* smoke, smoke_config config) {
-    int x = config.wind >= 0 ? 0 : smoke->size.x - 1;
+    int x = config.wind >= 0 ? 0 : smoke->size.x;
 
     for (int y = 0; y < smoke->size.y; ++y) {
         const int idx = IDX(x,y,smoke->size.x+1);

@@ -20,3 +20,5 @@ add_executable(smokessh source/simulation.c source/simulation.h
         source/obstacles.h)
 
 target_link_libraries(smokessh PRIVATE m)
+
+target_compile_options(smokessh PRIVATE -Wall -Wextra $<$<CONFIG:Release>:-O2>)

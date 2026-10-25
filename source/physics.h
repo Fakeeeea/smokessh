@@ -13,6 +13,7 @@
 #define TIMESTEP (0.0167f) // 1/60
 
 int is_solid(const environment* smoke, ivec2 p);
+int in_bounds(const environment* smoke, ivec2 p);
 
 float get_vx(const environment* smoke, ivec2 p);
 float get_vy(const environment* smoke, ivec2 p);

@@ -62,7 +62,7 @@ static void move_cursor(int r, int c) {
     push_str("\033["), push_int(r), push_char(';'), push_int(c), push_char('H');
 }
 
-void clear_screen() {
+static void clear_screen() {
     push_str("\033[2J");
 }
 
@@ -70,7 +70,7 @@ static void hide_cursor() {
     push_str("\033[?25l");
 }
 
-void show_cursor() {
+static void show_cursor() {
     push_str("\033[?25h");
 }
 
@@ -121,6 +121,8 @@ static void flush_buffer() {
             poll(&p, 1, 100);
         } else if (n < 0 && errno == EINTR) {
             continue;
+        } else if (errno == EPIPE || errno == EIO){
+            exit(EXIT_FAILURE);
         } else {
             break;
         }
@@ -129,7 +131,7 @@ static void flush_buffer() {
     buf_len = 0;
 }
 
-static void print_framebuffer() {
+void print_framebuffer() {
     flush_buffer();
     fflush(stdout);
     buf_len = 0;
@@ -165,7 +167,10 @@ static void print_header(ivec2 size) {
     set_background(get_closest_color_index(0,250,250));
     set_color_rgb(0,0,0);
     set_bold();
-    int written_bytes = push_str_truncated("Press q to quit - ./smokessh -", size.x);
+
+    char buf[256];
+    sprintf(buf, "Press q to quit - WASD to move - ./smokessh - current_size: %d,%d", size.x, size.y);
+    int written_bytes = push_str_truncated(buf, size.x);
 
     for (int x = written_bytes; x < size.x; ++x) {
         push_char(' ');
@@ -232,5 +237,12 @@ void print_smoke(const environment* smoke) {
             drawn_ch[sy][x] = ch; drawn_col[sy][x] = col;
         }
     }
+    print_framebuffer();
+}
+
+void clean_screen() {
+    move_cursor(1,1);
+    show_cursor();
+    clear_screen();
     print_framebuffer();
 }
