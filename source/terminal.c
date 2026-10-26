@@ -20,9 +20,10 @@ static int oldf;
 static volatile sig_atomic_t resize_pending = 0;
 static volatile sig_atomic_t keep_running = 1;
 
-struct sigaction sa;
+static struct sigaction sa;
+static struct sigaction sa_int;
 
-struct sigaction sa_int;
+static int terminal_ready = 0;
 
 void setup_terminal() {
     tcgetattr(STDIN_FILENO, &old);
@@ -36,9 +37,12 @@ void setup_terminal() {
     oldf = fcntl(STDIN_FILENO, F_GETFL);
 
     fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    terminal_ready = 1;
 }
 
 void reset_terminal() {
+    if (!terminal_ready) return;
     tcsetattr(STDIN_FILENO, TCSANOW, &old);
     fcntl(STDIN_FILENO, F_SETFL, oldf);
 }
@@ -57,30 +61,17 @@ input parse_input() {
         .code = MOV,
     };
 
-    int c;
-    while ((c = getchar()) != EOF) {
+    char c;
+    ssize_t n;
+
+    while ((n = read(STDIN_FILENO, &c, 1)) > 0) {
         switch (c) {
-            case 'a':
-            case 'A':
-                out.mov.x--;
-                break;
-            case 'd':
-            case 'D':
-                out.mov.x++;
-                break;
-            case 'w':
-            case 'W':
-                out.mov.y++;
-                break;
-            case 's':
-            case 'S':
-                out.mov.y--;
-                break;
-            case 'q':
-            case 'Q':
-                out.code = QUIT;
-            default:
-                break;
+            case 'a': case 'A': out.mov.x--; break;
+            case 'd': case 'D': out.mov.x++; break;
+            case 'w': case 'W': out.mov.y++; break;
+            case 's': case 'S': out.mov.y--; break;
+            case 'q': case 'Q': out.code = QUIT; break;
+            default: break;
         }
     }
 
@@ -136,7 +127,7 @@ void set_handlers() {
 
     sa_int.sa_handler = sigint_handler;
     sigemptyset(&sa_int.sa_mask);
-    sa.sa_flags = 0;
+    sa_int.sa_flags = 0;
 
     sigaction(SIGINT, &sa_int, NULL);
 }

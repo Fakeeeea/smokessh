@@ -71,7 +71,6 @@ int main(int argc, char *argv[]) {
 
     parse_flags(argc, argv);
     set_handlers();
-    set_atexit();
     detect_size(&size);
 
     init_graphics();
@@ -81,6 +80,7 @@ int main(int argc, char *argv[]) {
     if (!isatty(STDIN_FILENO)) reattach_tty();
 
     setup_terminal();
+    set_atexit();
 
     const long target_frame_time_us = (long)(1000000.0f / (float)config.target_fps);
 

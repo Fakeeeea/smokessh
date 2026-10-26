@@ -19,6 +19,9 @@ add_executable(smokessh source/simulation.c source/simulation.h
         source/obstacles.c
         source/obstacles.h)
 
-target_link_libraries(smokessh PRIVATE m)
+target_link_libraries(smokessh PRIVATE m $<$<CONFIG:Debug>:-fsanitize=address,undefined>)
 
 target_compile_options(smokessh PRIVATE -Wall -Wextra $<$<CONFIG:Release>:-O2>)
+
+target_compile_options(smokessh PRIVATE $<$<CONFIG:Debug>:-fsanitize=address,undefined>
+        $<$<CONFIG:Debug>:-fno-omit-frame-pointer>)
