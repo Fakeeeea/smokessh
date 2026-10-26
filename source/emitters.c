@@ -122,6 +122,9 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
     if (!from_stdin) fclose(fptr);
     *emitter_array = arr;
     *emitter_counter = count;
+
+    clearerr(stdin);
+
     return;
 
     fail:
