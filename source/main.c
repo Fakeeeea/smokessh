@@ -71,7 +71,6 @@ int main(int argc, char *argv[]) {
 
     parse_flags(argc, argv);
     set_handlers();
-    set_atexit();
     detect_size(&size);
 
     init_graphics();
