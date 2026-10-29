@@ -13,6 +13,7 @@
 
 #include "graphics.h"
 #include "simulation.h"
+#include "app.h"
 
 static struct termios old, new;
 static int oldf;
@@ -24,6 +25,9 @@ static struct sigaction sa;
 static struct sigaction sa_int;
 
 static int terminal_ready = 0;
+
+//static simulation *registered_simulation = NULL;
+static app *registered_app = NULL;
 
 void setup_terminal() {
     tcgetattr(STDIN_FILENO, &old);
@@ -55,22 +59,20 @@ void reattach_tty() {
     clearerr(stdin);
 }
 
-input parse_input() {
-    input out = {
-        .mov = (ivec2) {.x = 0, .y = 0},
-        .code = MOV,
-    };
+action parse_input() {
+    action out = ACT_NONE;
 
     char c;
     ssize_t n;
 
     while ((n = read(STDIN_FILENO, &c, 1)) > 0) {
         switch (c) {
-            case 'a': case 'A': out.mov.x--; break;
-            case 'd': case 'D': out.mov.x++; break;
-            case 'w': case 'W': out.mov.y++; break;
-            case 's': case 'S': out.mov.y--; break;
-            case 'q': case 'Q': out.code = QUIT; break;
+            case 'a': case 'A': out = ACT_LEFT; break;
+            case 'd': case 'D': out = ACT_RIGHT; break;
+            case 'w': case 'W': out = ACT_UP; break;
+            case 's': case 'S': out = ACT_DOWN; break;
+            case 'q': case 'Q': out = ACT_QUIT; break;
+            case '\n': out = ACT_SELECT; break;
             default: break;
         }
     }
@@ -78,23 +80,24 @@ input parse_input() {
     return out;
 }
 
-void detect_size(ivec2* size) {
+ivec2 detect_size() {
+    ivec2 size;
     struct winsize ws;
 
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
-        *size = (ivec2){.x = ws.ws_col, .y = ws.ws_row};
-        if (size->x < MIN_ANY_SIZE) size->x = MIN_ANY_SIZE;
-        if (size->y < MIN_ANY_SIZE) size->y = MIN_ANY_SIZE;
+        size = (ivec2){.x = ws.ws_col, .y = ws.ws_row};
+        if (size.x < MIN_ANY_SIZE) size.x = MIN_ANY_SIZE;
+        if (size.y < MIN_ANY_SIZE) size.y = MIN_ANY_SIZE;
 
-        if (size->x > MAX_ANY_SIZE) size->x = MAX_ANY_SIZE;
-        if (size->y > MAX_ANY_SIZE) size->y = MAX_ANY_SIZE;
+        if (size.x > MAX_ANY_SIZE) size.x = MAX_ANY_SIZE;
+        if (size.y > MAX_ANY_SIZE) size.y = MAX_ANY_SIZE;
     } else {
-        *size = (ivec2){.x = DEFAULT_SIZE_X, .y = DEFAULT_SIZE_Y};
+        size = (ivec2){.x = DEFAULT_SIZE_X, .y = DEFAULT_SIZE_Y};
     }
 
-    size->y--; //first line dedicated to header
-
     resize_pending = 0;
+
+    return size;
 }
 
 static void resize_handler(int sig) {
@@ -107,15 +110,12 @@ static void sigint_handler(int sig) {
     keep_running = 0;
 }
 
-static simulation *registered_simulation;
-
-void register_simulation(simulation *sim) {
-    registered_simulation = sim;
+void register_app(app *a) {
+    registered_app = a;
 }
 
-static void free_simulation_wrapper() {
-    if (registered_simulation != NULL)
-        free_simulation(registered_simulation);
+static void app_shutdown_wrapper() {
+    app_shutdown(registered_app);
 }
 
 void set_handlers() {
@@ -133,9 +133,7 @@ void set_handlers() {
 }
 
 void set_atexit() {
-    atexit(reset_terminal);
-    atexit(free_simulation_wrapper);
-    atexit(clean_screen);
+    atexit(app_shutdown_wrapper);
 }
 
 int should_resize() {
