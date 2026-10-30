@@ -62,7 +62,7 @@ static void move_cursor(int r, int c) {
     push_str("\033["), push_int(r), push_char(';'), push_int(c), push_char('H');
 }
 
-static void clear_screen() {
+void clear_screen() {
     push_str("\033[2J");
 }
 
@@ -245,4 +245,13 @@ void clean_screen() {
     show_cursor();
     clear_screen();
     print_framebuffer();
+}
+
+void draw_text(int col, int row, const char* str, int fg, int bg, int bold) {
+    move_cursor(row, col);
+    set_background(bg);
+    set_color_index(fg);
+    if (bold) set_bold();
+    push_str(str);
+    reset_color();
 }

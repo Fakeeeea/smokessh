@@ -17,7 +17,13 @@ add_executable(smokessh source/simulation.c source/simulation.h
         source/emitters.c
         source/emitters.h
         source/obstacles.c
-        source/obstacles.h)
+        source/obstacles.h
+        source/app.c
+        source/app.h
+        source/menu.c
+        source/menu.h
+        source/menu_components.c
+        source/menu_components.h)
 
 target_link_libraries(smokessh PRIVATE m $<$<CONFIG:Debug>:-fsanitize=address,undefined>)
 

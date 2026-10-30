@@ -3,6 +3,7 @@
 //
 
 #include "obstacles.h"
+#include "terminal.h"
 
 static void clamp_obstacle(obstacle *o, const ivec2 max_size) {
     if (o->location.x < 0) o->location.x = 0;
@@ -25,7 +26,16 @@ void move_obstacle(obstacle *o, const ivec2 new_pos, const ivec2 size) {
     clamp_obstacle(o, size);
 }
 
-void handle_obstacle_movement(obstacle *o, const ivec2 mov, const ivec2 size) {
+void handle_obstacle_movement(obstacle *o, int code, const ivec2 size) {
+    ivec2 mov = {0,0};
+    switch (code) {
+        case ACT_RIGHT: mov.x++; break;
+        case ACT_LEFT: mov.x--; break;
+        case ACT_UP: mov.y++; break;
+        case ACT_DOWN: mov.y--; break;
+        default:  break;
+    }
+
     ivec2 new_pos = {o->location.x + mov.x, o->location.y + mov.y};
 
     move_obstacle(o, new_pos, size);

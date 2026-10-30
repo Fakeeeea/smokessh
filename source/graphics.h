@@ -13,6 +13,11 @@
 
 void init_graphics();
 void print_smoke(const environment* smoke);
+void print_framebuffer();
+
+void clear_screen();
 void clean_screen();
+
+void draw_text(int col, int row, const char* str, int fg, int bg, int bold);
 
 #endif //SMOKESSH_SMOKE_GRAPHICS_H

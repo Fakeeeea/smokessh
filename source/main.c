@@ -67,11 +67,10 @@ void parse_flags(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-    ivec2 size;
-
+    app a;
     parse_flags(argc, argv);
-    set_handlers();
-    detect_size(&size);
+    /*set_handlers();
+    ivec2 size = detect_size();
 
     init_graphics();
     sim = init_simulation(config, size);
@@ -80,36 +79,44 @@ int main(int argc, char *argv[]) {
     if (!isatty(STDIN_FILENO)) reattach_tty();
 
     setup_terminal();
-    set_atexit();
+    set_atexit();*/
 
-    const long target_frame_time_us = (long)(1000000.0f / (float)config.target_fps);
+    app_init(&a, config);
 
-    struct timespec start_time, end_time;
+    // const long target_frame_time_us = (long)(1000000.0f / (float)config.target_fps);
+    //
+    // struct timespec start_time, end_time;
+    //
+    // while (should_keep_running()) {
+    //
+    //     if (should_resize()) {
+    //         size = detect_size();
+    //         restart_simulation(&sim, size);
+    //         init_graphics();
+    //     }
+    //
+    //     clock_gettime(CLOCK_MONOTONIC, &start_time);
+    //
+    //     input in = parse_input();
+    //
+    //     if (in.code == QUIT) { break;}
+    //
+    //     handle_obstacle_movement(&sim.obstacle, in.mov, size);
+    //     run(&sim);
+    //     print_smoke(&sim.env);
+    //
+    //     clock_gettime(CLOCK_MONOTONIC, &end_time);
+    //
+    //     long elapsed_us = (end_time.tv_sec - start_time.tv_sec) * 1000000L + (end_time.tv_nsec - start_time.tv_nsec) / 1000L;
+    //     if (elapsed_us < target_frame_time_us) {
+    //         usleep(target_frame_time_us - elapsed_us);
+    //     }
+    // }
 
-    while (should_keep_running()) {
+    app_run(&a);
 
-        if (should_resize()) {
-            detect_size(&size);
-            restart_simulation(&sim, size);
-            init_graphics();
-        }
-
-        clock_gettime(CLOCK_MONOTONIC, &start_time);
-
-        input in = parse_input();
-
-        if (in.code == QUIT) { break;}
-
-        handle_obstacle_movement(&sim.obstacle, in.mov, size);
-        run(&sim);
-        print_smoke(&sim.env);
-
-        clock_gettime(CLOCK_MONOTONIC, &end_time);
-
-        long elapsed_us = (end_time.tv_sec - start_time.tv_sec) * 1000000L + (end_time.tv_nsec - start_time.tv_nsec) / 1000L;
-        if (elapsed_us < target_frame_time_us) {
-            usleep(target_frame_time_us - elapsed_us);
-        }
-    }
+    //app_shutdown(&a);
+    /* atexit calls app_shutdown already, so it's commented out here.
+     */
     return 0;
 }
