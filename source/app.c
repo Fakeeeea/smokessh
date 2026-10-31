@@ -65,11 +65,22 @@ void app_run(app* a) {
 
         frame_start();
 
-        //todo: quit app
         switch (a->state) {
-            case APP_MENU: a->state = update_menu(&a->menu, in); draw_menu(&a->menu, a->size); break;
+            case APP_MENU: {
+                int next = update_menu(in);
+                if (next == APP_SIM) {
+                    free_simulation(&a->sim);
+                    a->sim = init_simulation(a->config, a->size);
+                }
+                a->state = next;
+                if (a->state == APP_MENU) draw_menu(a->size);
                 break;
-            case APP_SIM: handle_obstacle_movement(&a->sim.obstacle, in, a->sim.env.size); run(&a->sim); print_smoke(&a->sim.env);
+            }
+            case APP_SIM:
+                if (in == ACT_QUIT) { a->state = APP_MENU; break; }
+                handle_obstacle_movement(&a->sim.obstacle, in, a->sim.env.size);
+                run(&a->sim);
+                print_smoke(&a->sim.env);
                 break;
             default: break;
         }

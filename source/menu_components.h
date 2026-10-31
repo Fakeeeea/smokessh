@@ -7,32 +7,42 @@
 
 #include "sim_math.h"
 
-typedef enum {W_BUTTON, W_TOGGLE, W_INT, W_FLOAT} widget_type;
+typedef enum {W_BUTTON, W_INT, W_FLOAT} widget_type;
 
 typedef struct widget {
     widget_type type;
+
     const char* label;
-    void* data;
+
     float min, max, step;
     int id;
+
+    void (*callback)(int caller_id);
+    void* data;
 } widget;
 
-#define WIDGET_NONE (-1)
+#define NO_ID (-1)
+#define MAX_WIDGETS_PAGE 16
 
 typedef struct page {
     const char* title;
-    widget* items;
-    int count;
+
+    widget items[MAX_WIDGETS_PAGE];
+    int w_count;
+
+    int focus;
 } page;
 
-widget create_button(char* label, int id);
+widget create_button(char* label, int id, void (*callback)(int caller_id));
 widget create_input_i(char* label, int* data, int min, int max, int step);
 widget create_input_f(char* label, float* data, float min, float max, float step);
 
 int widget_input(widget* w, int act);
-void draw_widget(widget* w, int col, int row, int width, int focused);
+void draw_widget(const widget* w, int col, int row, int focused);
 
-int update_page(page* p, int* focus, int act);
-void draw_page(const page* p, int focus, ivec2 size);
+void init_page(page* p);
+void add_widget(page* p, widget w);
+int update_page(page* p, int act);
+void draw_page(const page* p, ivec2 size);
 
 #endif //SMOKESSH_MENU_COMPONENTS_H

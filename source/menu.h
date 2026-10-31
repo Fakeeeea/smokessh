@@ -9,30 +9,27 @@
 #include "menu_components.h"
 
 typedef enum menu_window {
-    MENU_MAIN,
-    MENU_SETTINGS,
-    MENU_CONFIG,
-    MENU_EMITTERS,
-    MENU_NONE
+    PAGE_MAIN,
+    PAGE_SETTINGS,
+    PAGE_CONFIG,
+    PAGE_EMITTERS,
+    PAGE_COUNT
 } menu_window;
 
-#define MENU_PAGES 4;
-
-#define MENU_MAIN_WIDGETS 3
-#define MENU_SETTINGS_WIDGETS 3
-#define MENU_EMITTERS_WIDGETS 1
-#define MENU_CONFIG_WIDGETS 6
+#define MAX_DEPTH 8
 
 typedef struct menu {
-    menu_window window;
     smoke_config* config;
 
-    page* pages;
-    int p_count;
+    page pages[PAGE_COUNT];
+    int stack[MAX_DEPTH];
+    int depth;
+
+    int result;
 }menu;
 
-void init_menu(menu* m, smoke_config* config);
-int update_menu(menu* m, int code);
-void draw_menu(const menu* m, ivec2 size);
+void init_menu(menu* i_menu, smoke_config* config);
+int update_menu(int code);
+void draw_menu(ivec2 size);
 
 #endif //SMOKESSH_MENU_H

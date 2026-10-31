@@ -66,8 +66,14 @@ void parse_flags(int argc, char *argv[]) {
     }
 }
 
+/*
+ * Keeping "a" as a global var so it doesn't stop existing with main,
+ * causing atexit to call free on non-existent memory.
+ */
+app a;
+
+
 int main(int argc, char *argv[]) {
-    app a;
     parse_flags(argc, argv);
     /*set_handlers();
     ivec2 size = detect_size();
