@@ -5,6 +5,8 @@
 #ifndef SMOKESSH_MENU_H
 #define SMOKESSH_MENU_H
 
+#include <limits.h>
+
 #include "config.h"
 #include "menu_components.h"
 
@@ -18,6 +20,9 @@ typedef enum menu_window {
 
 #define MAX_DEPTH 8
 
+#define MAX_PRESETS 32
+#define PRESET_NAME_LEN 64
+
 typedef struct menu {
     smoke_config* config;
 
@@ -26,6 +31,10 @@ typedef struct menu {
     int depth;
 
     int result;
+
+    char presets[MAX_PRESETS][PRESET_NAME_LEN];
+    char selected[PATH_MAX];
+    int preset_count;
 }menu;
 
 void init_menu(menu* i_menu, smoke_config* config);

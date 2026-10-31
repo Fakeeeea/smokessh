@@ -5,9 +5,13 @@
 #ifndef SMOKESSH_CONFIG_H
 #define SMOKESSH_CONFIG_H
 
+#include "limits.h"
+
 typedef struct smoke_config {
     int target_fps;
-    char *emitter_file;
+
+    char* emitter_file;
+    char emitter_dir[PATH_MAX];
 
     int t_ambient;
     int obstacle_radius;

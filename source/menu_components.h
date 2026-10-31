@@ -17,7 +17,7 @@ typedef struct widget {
     float min, max, step;
     int id;
 
-    void (*callback)(int caller_id);
+    void (*callback )(int caller_id);
     void* data;
 } widget;
 
@@ -33,12 +33,12 @@ typedef struct page {
     int focus;
 } page;
 
-widget create_button(char* label, int id, void (*callback)(int caller_id));
-widget create_input_i(char* label, int* data, int min, int max, int step);
-widget create_input_f(char* label, float* data, float min, float max, float step);
+widget create_button(const char* label, int id,void (*callback)(int caller_id));
+widget create_input_i(const char* label, int* data, int min, int max, int step);
+widget create_input_f(const char* label, float* data, float min, float max, float step);
 
 int widget_input(widget* w, int act);
-void draw_widget(const widget* w, int col, int row, int focused);
+void draw_widget(const widget* w, int col, int row, int color, int flags, char wrap_start, char wrap_end);
 
 void init_page(page* p);
 void add_widget(page* p, widget w);

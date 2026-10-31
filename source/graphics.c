@@ -84,7 +84,7 @@ static void reset_color() {
     push_str("\033[0m");
 }
 
-static int get_closest_color_index(int r, int g, int b) {
+int get_closest_color_index(int r, int g, int b) {
     r = (5 * r) / 255;
     g = (5 * g) / 255;
     b = (5 * b) / 255;
@@ -139,6 +139,26 @@ void print_framebuffer() {
 
 static void set_bold() {
     push_str("\033[1m");
+}
+
+static void set_italic() {
+    push_str("\033[3m");
+}
+
+static void set_underline() {
+    push_str("\033[4m");
+}
+
+static void set_blink() {
+    push_str("\033[5m");
+}
+
+static void set_faint() {
+    push_str("\033[2m");
+}
+
+static void set_strikethrough() {
+    push_str("\033[9m");
 }
 
 static int push_float(float n) {
@@ -247,11 +267,18 @@ void clean_screen() {
     print_framebuffer();
 }
 
-void draw_text(int col, int row, const char* str, int fg, int bg, int bold) {
+void draw_text(int col, int row, const char* str, int fg, int bg, int flags) {
+
+    if (BOLD & flags) set_bold();
+    if (ITALIC & flags) set_italic();
+    if (UNDERLINE & flags) set_underline();
+    if (STRIKETHROUGH & flags) set_strikethrough();
+    if (FAINT & flags) set_faint();
+    if (BLINK & flags) set_blink();
+
     move_cursor(row, col);
     set_background(bg);
     set_color_index(fg);
-    if (bold) set_bold();
     push_str(str);
     reset_color();
 }

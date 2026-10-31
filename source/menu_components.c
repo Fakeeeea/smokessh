@@ -10,7 +10,7 @@
 #include "menu_components.h"
 #include "graphics.h"
 
-widget create_button(char* label, int id, void (*callback)(int caller_id)) {
+widget create_button(const char* label, const int id, void (*callback)(int caller_id)) {
     return (widget){
         .label = label,
 
@@ -24,7 +24,7 @@ widget create_button(char* label, int id, void (*callback)(int caller_id)) {
     };
 }
 
-widget create_input_i(char* label, int* data, int min, int max, int step) {
+widget create_input_i(const char* label, int* data, const int min, const int max, const int step) {
     return (widget){
         .label = label,
 
@@ -37,7 +37,7 @@ widget create_input_i(char* label, int* data, int min, int max, int step) {
         .callback = NULL,
     };
 }
-widget create_input_f(char* label, float* data, float min, float max, float step) {
+widget create_input_f(const char* label, float* data, const float min, const float max, const float step) {
     return (widget){
         .label = label,
 
@@ -82,7 +82,7 @@ static void decrement_widget(widget *w) {
     }
 }
 
-int widget_input(widget* w, int act) {
+int widget_input(widget* w, const int act) {
     if (!w) return NO_ID;
 
     switch (act) {
@@ -101,7 +101,7 @@ int widget_input(widget* w, int act) {
     return 1;
 }
 
-void draw_widget(const widget* w, int col, int row, int focused) {
+void draw_widget(const widget* w, const int col, const int row, const int color, const int flags, const char wrap_start, const char wrap_end) {
     char val[64] = "";
     char buf[256];
 
@@ -110,13 +110,14 @@ void draw_widget(const widget* w, int col, int row, int focused) {
         case W_FLOAT: snprintf(val, sizeof val, " - %.3f", *(float*)w->data); break;
         default: break;
     }
-    snprintf(buf, sizeof buf, "%c%s%s%c",
-             focused ? '[' : ' ', w->label, val, focused ? ']' : ' ');
 
-    draw_text(col, row, buf, 255, 0, 0);
+    snprintf(buf, sizeof buf, "%c%s%s%c",
+             wrap_start, w->label, val, wrap_end);
+
+    draw_text(col, row, buf, color, 0, flags);
 }
 
-void add_widget(page* p, widget w) {
+void add_widget(page* p, const widget w) {
     if (p->w_count >= MAX_WIDGETS_PAGE) {
         fprintf(stderr, "Tried adding a widget to an already full page (%s).", p->title);
         exit(EXIT_FAILURE);
@@ -132,22 +133,45 @@ void init_page(page* p) {
     p->title = "";
 }
 
-int update_page(page* p, int act) {
+int update_page(page* p, const int act) {
     if (p == NULL) return 1;
 
     if (act == ACT_UP)   p->focus = (p->focus + p->w_count - 1) % p->w_count;
     if (act == ACT_DOWN) p->focus = (p->focus + 1) % p->w_count;
     return widget_input(&p->items[p->focus], act);
 }
-void draw_page(const page* p, ivec2 size) {
+void draw_page(const page* p, const ivec2 size) {
     if (p == NULL) return;
 
+    const int W_HEIGHT = 2;
+    const int MARGIN = 2;
+
+    int max_visible = (size.y - MARGIN * 2 - W_HEIGHT) / W_HEIGHT;
+    if (max_visible < 1) max_visible = 1;
+
+    int visible = p->w_count < max_visible ? p->w_count : max_visible;
+
+    int start = p->focus - visible / W_HEIGHT;
+    if (start > p->w_count - visible) start = p->w_count - visible;
+    if (start < 0) start = 0;
+    int end = start + visible;
+
     const int w = 30;
-    const int total_h = p->w_count * 2 + 2;
-    const int top  = (size.y - total_h) / 2 + 1;
+    const int total_h = visible * W_HEIGHT + W_HEIGHT;
+    const int top  = (size.y - total_h) / W_HEIGHT + 1;
     const int left = (size.x - w) / 2 + 1;
 
     draw_text(left, top, p->title, 255, 0, 1);
-    for (int i = 0; i < p->w_count; ++i)
-        draw_widget(&p->items[i], left, top + 2 + i * 2, i == p->focus);
+    for (int i = start; i < end; ++i) {
+
+        int color = get_closest_color_index(240,240,240);
+        int flags = NONE;
+
+        char wrap_start = ' ', wrap_end = ' ';
+        if (i == p->focus) {
+            wrap_start = '[', wrap_end = ']';
+            flags = BOLD | UNDERLINE;
+        }
+        draw_widget(&p->items[i], left, top + MARGIN + (i - start) * W_HEIGHT, color, flags, wrap_start, wrap_end);
+    }
 }

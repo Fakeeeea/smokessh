@@ -5,18 +5,18 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "config.h"
 #include "simulation.h"
 #include "terminal.h"
-#include "graphics.h"
 #include "physics.h"
 
 smoke_config config = {
     .target_fps = 30,
     .emitter_file = NULL,
+    .emitter_dir = "./",
 
     .t_ambient = T_AMBIENT,
     .cell_size = CELL_SIZE,
@@ -31,8 +31,11 @@ void parse_flags(int argc, char *argv[]) {
     int opt;
     char* end_ptr;
 
-    while ((opt = getopt(argc, argv, "f:e:t:s:c:o:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "d:f:e:t:s:c:o:w:")) != -1) {
         switch (opt) {
+            case 'd':
+                strcpy(config.emitter_dir, optarg);
+                break;
             case 'f':
                 config.target_fps = (int)strtol(optarg, &end_ptr, 10);
                 config.target_fps = config.target_fps < 1 ? 1 : config.target_fps;
@@ -60,7 +63,7 @@ void parse_flags(int argc, char *argv[]) {
                 break;
 
             default:
-                fprintf(stderr, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n", argv[0]);
+                fprintf(stderr, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-d emitters_dir]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }
@@ -75,50 +78,8 @@ app a;
 
 int main(int argc, char *argv[]) {
     parse_flags(argc, argv);
-    /*set_handlers();
-    ivec2 size = detect_size();
-
-    init_graphics();
-    sim = init_simulation(config, size);
-    register_simulation(&sim);
-
-    if (!isatty(STDIN_FILENO)) reattach_tty();
-
-    setup_terminal();
-    set_atexit();*/
 
     app_init(&a, config);
-
-    // const long target_frame_time_us = (long)(1000000.0f / (float)config.target_fps);
-    //
-    // struct timespec start_time, end_time;
-    //
-    // while (should_keep_running()) {
-    //
-    //     if (should_resize()) {
-    //         size = detect_size();
-    //         restart_simulation(&sim, size);
-    //         init_graphics();
-    //     }
-    //
-    //     clock_gettime(CLOCK_MONOTONIC, &start_time);
-    //
-    //     input in = parse_input();
-    //
-    //     if (in.code == QUIT) { break;}
-    //
-    //     handle_obstacle_movement(&sim.obstacle, in.mov, size);
-    //     run(&sim);
-    //     print_smoke(&sim.env);
-    //
-    //     clock_gettime(CLOCK_MONOTONIC, &end_time);
-    //
-    //     long elapsed_us = (end_time.tv_sec - start_time.tv_sec) * 1000000L + (end_time.tv_nsec - start_time.tv_nsec) / 1000L;
-    //     if (elapsed_us < target_frame_time_us) {
-    //         usleep(target_frame_time_us - elapsed_us);
-    //     }
-    // }
-
     app_run(&a);
 
     //app_shutdown(&a);

@@ -7,25 +7,28 @@
 
 #include "menu.h"
 #include "app.h"
-#include "utils.h"
 #include "graphics.h"
 #include "terminal.h"
+
+#include <dirent.h>
+#include <string.h>
+#include <sys/stat.h>
 
 static menu* m;
 
 typedef enum menu_ids {RUN, SETTINGS, QUIT, BACK, CONFIG, EMITTERS} menu_ids;
 
-static void quit_app(int id) {
+static void quit_app(const int id) {
     (void) id;
     m->result = APP_QUIT;
 }
 
-static void start_sim(int id) {
+static void start_sim(const int id) {
     (void) id;
     m->result = APP_SIM;
 }
 
-static void push_stack(int val) {
+static void push_stack(const int val) {
     if (m->depth >= MAX_DEPTH) {
         fprintf(stderr, "Tried pushing over menu stack limit");
         exit(EXIT_FAILURE);
@@ -43,17 +46,62 @@ static void pop_stack() {
     m->depth--;
 }
 
-static void prev_page(int id) {
+static void prev_page(const int id) {
     (void)id;
     pop_stack();
 }
 
-static void next_page(int id) {
+static int qsort_cmp(const void *a, const void *b) {return strcmp(a,b);}
+
+static void scan_presets() {
+    m->preset_count = 0;
+
+    DIR* d = opendir(m->config->emitter_dir);
+    if (!d) return;
+
+    struct dirent* e;
+    while ((e = readdir(d)) && m->preset_count < MAX_PRESETS) {
+        if (e->d_name[0] == '.') continue;
+        if (strlen(e->d_name) >= PRESET_NAME_LEN) continue;
+
+        char path[PATH_MAX];
+        snprintf(path, sizeof(path), "%s/%s", m->config->emitter_dir, e->d_name);
+
+        struct stat st;
+        if (stat(path, &st) != 0 || !S_ISREG(st.st_mode)) continue;
+
+        strcpy(m->presets[m->preset_count++], e->d_name);
+    }
+    closedir(d);
+
+    qsort(m->presets, (size_t)m->preset_count, PRESET_NAME_LEN, qsort_cmp);
+}
+
+static void select_preset(int id) {
+    snprintf(m->selected, sizeof(m->selected), "%s/%s", m->config->emitter_dir, m->presets[id]);
+    m->config->emitter_file = m->selected;
+    prev_page(0);
+}
+
+static void build_emitters_page() {
+    page* p = &m->pages[PAGE_EMITTERS];
+    init_page(p);
+    scan_presets();
+
+    p->title = m->preset_count ? "Emitter presets" : "No presets found";
+    for (int i = 0; i < m->preset_count; ++i) {
+        add_widget(p, create_button(m->presets[i], i, select_preset));
+    }
+    add_widget(p, create_button("Back", BACK, prev_page));
+}
+
+static void next_page(const int id) {
     switch (id) {
         case SETTINGS:
             push_stack(PAGE_SETTINGS);
             break;
         case EMITTERS:
+            build_emitters_page();
             push_stack(PAGE_EMITTERS);
             break;
         case CONFIG:
@@ -92,9 +140,6 @@ void init_menu(menu* i_menu, smoke_config* config) {
     add_widget(&P(PAGE_CONFIG), create_input_f("Time step", &config->time_step, 0.001f, 1, 0.001f));
     add_widget(&P(PAGE_CONFIG), create_input_f("Wind", &config->wind, -10, 10, 1));
     add_widget(&P(PAGE_CONFIG), create_button("Back", BACK, prev_page));
-
-    P(PAGE_EMITTERS).title = "Under construction!\0";
-    add_widget(&P(PAGE_EMITTERS), create_button("Back", BACK, prev_page));
 #undef P
 
 }
@@ -104,7 +149,7 @@ static page* get_current_page() {
     return &m->pages[m->stack[m->depth-1]];
 }
 
-int update_menu(int code) {
+int update_menu(const int code) {
     m->result = APP_MENU;
 
     if (code == ACT_QUIT) {
@@ -117,7 +162,7 @@ int update_menu(int code) {
     return m->result;
 }
 
-void draw_menu(ivec2 size) {
+void draw_menu(const ivec2 size) {
     clear_screen();
     if (m->depth == 0) return;
 

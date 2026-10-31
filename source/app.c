@@ -13,7 +13,7 @@
 
 static struct timespec start_time, end_time;
 
-void app_init(app* a, smoke_config config) {
+void app_init(app* a, const smoke_config config) {
     //Init physics related info
     a->state = APP_MENU;
 
@@ -21,9 +21,9 @@ void app_init(app* a, smoke_config config) {
 
     a->config = config;
     a->sim = init_simulation(config, a->size);
-    //Init graphics
-    init_graphics();
+
     init_menu(&a->menu, &a->config);
+    init_graphics();
 
     //Setup terminal
     set_handlers();
@@ -36,7 +36,7 @@ static void frame_start() {
     clock_gettime(CLOCK_MONOTONIC, &start_time);
 }
 
-static void frame_limit(smoke_config c) {
+static void frame_limit(const smoke_config c) {
     const long target_frame_time_us = (long)(1000000.0f / (float)c.target_fps);
     /* why the hell do you keep warning me on a redundant long
      * cast if you warn me on implicit cast if I remove it >:/
@@ -44,7 +44,7 @@ static void frame_limit(smoke_config c) {
 
     clock_gettime(CLOCK_MONOTONIC, &end_time);
 
-    long elapsed_us = (end_time.tv_sec - start_time.tv_sec) * 1000000L + (end_time.tv_nsec - start_time.tv_nsec) / 1000L;
+    const long elapsed_us = (end_time.tv_sec - start_time.tv_sec) * 1000000L + (end_time.tv_nsec - start_time.tv_nsec) / 1000L;
     if (elapsed_us < target_frame_time_us) {
         usleep(target_frame_time_us - elapsed_us);
     }
@@ -71,6 +71,7 @@ void app_run(app* a) {
                 if (next == APP_SIM) {
                     free_simulation(&a->sim);
                     a->sim = init_simulation(a->config, a->size);
+                    init_graphics();
                 }
                 a->state = next;
                 if (a->state == APP_MENU) draw_menu(a->size);
