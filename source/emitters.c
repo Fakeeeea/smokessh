@@ -32,7 +32,10 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
         fptr = stdin;
         from_stdin = 1;
     } else {
-        fptr = fopen(DEFAULT_EMITTER_FILE, "r");
+        char default_path[PATH_MAX];
+        snprintf(default_path, sizeof(default_path), "%s/%s", config.emitter_dir, DEFAULT_EMITTER_FILE);
+
+        fptr = fopen(default_path, "r");
 
         if (!fptr) {
             fprintf(stderr, "emitters: cannot open '%s'\n", DEFAULT_EMITTER_FILE);
