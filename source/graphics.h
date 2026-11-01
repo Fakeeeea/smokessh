@@ -8,7 +8,7 @@
 #include "simulation.h"
 
 /* max grid area = 16.384 pixels.
-/* Around 64 bytes per pixel (prepared for the worst!!)
+ * Around 64 bytes per pixel (prepared for the worst!!)
  */
 
 #define BUFFER_SIZE (1024 * 1024)

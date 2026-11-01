@@ -21,11 +21,18 @@ typedef struct environment {
     float* velocitiesx[2];
     float* velocitiesy[2];
 
-    float* pressure;
     fvec3* smoke[2];
     float* temp[2];
 
-    int* solid;
+    float** pressure_pyramid;
+    int** solid_pyramid;
+    float** residual_pyramid;
+
+    ivec2* pyramid_sizes;
+    int pyramids_count;
+
+    //float* pressure;
+    //int* solid;
 
     int vx_idx, vy_idx;
     int s_idx;

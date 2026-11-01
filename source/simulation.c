@@ -53,12 +53,39 @@ void run(simulation* sim) {
 
     apply_wind(&sim->env, sim->config);
 
-    solve_pressure(&sim->env, sim->config);
+    multigrid_pressure_solve(&sim->env, sim->config);
     update_vx(&sim->env, sim->config), update_vy(&sim->env, sim->config);
     sim->env.vx_idx = 1 - sim->env.vx_idx, sim->env.vy_idx = 1 - sim->env.vy_idx;
 
     advect_smoke(&sim->env, sim->config);
     sim->env.s_idx = 1 - sim->env.s_idx;
+}
+
+static void init_pyramid_arrays(environment* env, ivec2 size) {
+    const int MIN_GRID_SIZE = 4;
+
+    ivec2 dims = size;
+    env->pyramids_count = 0;
+    while (dims.x >= MIN_GRID_SIZE && dims.y >= MIN_GRID_SIZE) {
+        dims.x >>= 1;
+        dims.y >>= 1;
+        env->pyramids_count++;
+    }
+
+    MALLOC(env->pyramid_sizes, env->pyramids_count * sizeof(ivec2));
+    MALLOC(env->pressure_pyramid, env->pyramids_count * sizeof(float*));
+    MALLOC(env->solid_pyramid, env->pyramids_count * sizeof(int*));
+    MALLOC(env->residual_pyramid, env->pyramids_count * sizeof(float*));
+
+    ivec2 current_s = size;
+    for (int i = 0; i < env->pyramids_count; ++i) {
+        env->pyramid_sizes[i].x = current_s.x; env->pyramid_sizes[i].y = current_s.y;
+
+        MALLOC(env->pressure_pyramid[i], current_s.x * current_s.y * sizeof(float));
+        MALLOC(env->solid_pyramid[i], current_s.x * current_s.y * sizeof(int));
+        MALLOC(env->residual_pyramid[i], current_s.x * current_s.y * sizeof(float));
+        current_s.x /= 2; current_s.y /= 2;
+    }
 }
 
 void init_env(environment* env, ivec2 size) {
@@ -74,7 +101,7 @@ void init_env(environment* env, ivec2 size) {
     MALLOC(env->velocitiesy[0],(size_t)w * (h+1) * sizeof(float));
     MALLOC(env->velocitiesy[1],(size_t)w * (h+1) * sizeof(float));
 
-    MALLOC(env->pressure,(size_t) w * h * sizeof(float));
+    //MALLOC(env->pressure,(size_t) w * h * sizeof(float));
 
     MALLOC(env->smoke[0],(size_t) w * h * sizeof(fvec3));
     MALLOC(env->smoke[1],(size_t) w * h * sizeof(fvec3));
@@ -82,9 +109,11 @@ void init_env(environment* env, ivec2 size) {
     MALLOC(env->temp[0],(size_t) w * h * sizeof(float));
     MALLOC(env->temp[1],(size_t) w * h * sizeof(float));
 
-    MALLOC(env->solid,(size_t) w * h * sizeof(int));
+    //MALLOC(env->solid,(size_t) w * h * sizeof(int));
 
     env->s_idx = env->vx_idx = env->vy_idx = 0;
+
+    init_pyramid_arrays(env, size);
 }
 
 void reset_env(environment* env, const smoke_config config) {
@@ -94,9 +123,9 @@ void reset_env(environment* env, const smoke_config config) {
             int idx = IDX(x,y,env->size.x);
 
             if (x == 0 || y == 0 || x == env->size.x-1 || y == env->size.y-1) {
-                env->solid[idx] = 1;
+                env->solid_pyramid[0][idx] = 1;
             } else {
-                env->solid[idx] = 0;
+                env->solid_pyramid[0][idx] = 0;
             }
 
             env->smoke[0][idx] = (fvec3){0,0,0};
@@ -104,7 +133,7 @@ void reset_env(environment* env, const smoke_config config) {
             env->temp[0][idx] = config.t_ambient;
             env->temp[1][idx] = config.t_ambient;
 
-            env->pressure[idx] = 0;
+            env->pressure_pyramid[0][idx] = 0;
         }
     }
 
@@ -133,11 +162,27 @@ void free_env(environment* env) {
     FREE(env->smoke[1]);
     FREE(env->temp[1]);
 
-    FREE(env->solid);
-    FREE(env->pressure);
+    //FREE(env->solid);
+    //FREE(env->pressure);
 
     FREE(env->velocitiesy[0]);
     FREE(env->velocitiesy[1]);
     FREE(env->velocitiesx[0]);
     FREE(env->velocitiesx[1]);
+
+    for (int i = 0; i < env->pyramids_count; ++i) {
+        if (env->pressure_pyramid != NULL) {
+            FREE(env->pressure_pyramid[i]);
+        }
+        if (env->solid_pyramid != NULL) {
+            FREE(env->solid_pyramid[i]);
+        }
+        if (env->residual_pyramid != NULL) {
+            FREE(env->residual_pyramid[i]);
+        }
+    }
+    FREE(env->pyramid_sizes);
+    FREE(env->pressure_pyramid);
+    FREE(env->solid_pyramid);
+    FREE(env->residual_pyramid);
 }

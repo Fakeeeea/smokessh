@@ -31,7 +31,7 @@ void parse_flags(int argc, char *argv[]) {
     int opt;
     char* end_ptr;
 
-    while ((opt = getopt(argc, argv, "d:f:e:t:s:c:o:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "d:f:e:t:s:c:o:w:h")) != -1) {
         switch (opt) {
             case 'd':
                 strcpy(config.emitter_dir, optarg);
@@ -61,7 +61,10 @@ void parse_flags(int argc, char *argv[]) {
             case 'w':
                 config.wind = strtof(optarg, &end_ptr);
                 break;
-
+            case 'h':
+                fprintf(stdout, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-d emitters_dir]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n", argv[0]);
+                exit(EXIT_SUCCESS);
+                break;
             default:
                 fprintf(stderr, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-d emitters_dir]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n", argv[0]);
                 exit(EXIT_FAILURE);
@@ -73,8 +76,7 @@ void parse_flags(int argc, char *argv[]) {
  * Keeping "a" as a global var so it doesn't stop existing with main,
  * causing atexit to call free on non-existent memory.
  */
-app a;
-
+static app a;
 
 int main(int argc, char *argv[]) {
     parse_flags(argc, argv);

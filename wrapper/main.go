@@ -17,7 +17,7 @@ import (
 )
 
 const (
-    host = "0.0.0.0";
+    host = "::";
     port = "2222";
 )
 
@@ -44,7 +44,7 @@ func main() {
                     return;
                 }
 
-                cmd := exec.Command("./smokessh");
+                cmd := exec.Command("./smokessh", "-d ../presets");
                 cmd.Env = append(os.Environ(), "TERM="+ptyReq.Term);
 
                 ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{
