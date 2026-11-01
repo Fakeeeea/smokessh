@@ -22,6 +22,7 @@ typedef struct environment {
     float* velocitiesy[2];
 
     float* pressure;
+    float* residual;
     fvec3* smoke[2];
     float* temp[2];
 

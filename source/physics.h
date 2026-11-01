@@ -20,7 +20,6 @@ float get_vy(const environment* smoke, ivec2 p);
 
 float get_pressure(const environment* smoke, ivec2 p);
 
-void solve_pressure_iteration(environment* smoke, smoke_config config);
 void solve_pressure(environment* smoke, smoke_config config);
 void update_vx(environment* smoke, smoke_config config);
 void update_vy(environment* smoke, smoke_config config);

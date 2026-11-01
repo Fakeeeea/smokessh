@@ -47,7 +47,24 @@ float get_pressure(const environment* smoke, const ivec2 p) {
     return smoke->pressure[IDX(p.x,p.y,smoke->size.x)];
 }
 
-void solve_pressure_iteration(environment* smoke, const smoke_config config) {
+static void precompute_residual(environment* smoke, const smoke_config config) {
+    for (int y = 0; y < smoke->size.y; ++y) {
+        for (int x = 0; x < smoke->size.x; ++x) {
+
+            float v_left = get_vx(smoke, (ivec2){x,y});
+            float v_right = get_vx(smoke, (ivec2){x+1,y});
+            float v_bottom = get_vy(smoke, (ivec2){x,y});
+            float v_top = get_vy(smoke, (ivec2){x,y+1});
+
+            float delta_v = v_right - v_left + v_top - v_bottom;
+            smoke->residual[IDX(x,y,smoke->size.x)] = config.cell_size * delta_v / config.time_step;
+        }
+    }
+}
+
+static void solve_pressure_iteration(environment* smoke, const smoke_config config) {
+    const float omega = 1.7f;
+
     for (int y = 0; y < smoke->size.y; ++y) {
         for (int x = 0; x < smoke->size.x; ++x) {
             int solid_left = is_solid(smoke, (ivec2){x-1, y});
@@ -63,27 +80,24 @@ void solve_pressure_iteration(environment* smoke, const smoke_config config) {
             int f_sum = flow_left + flow_right + flow_top + flow_bottom;
             if (f_sum == 0) continue;
 
-            float v_left = get_vx(smoke, (ivec2){x,y});
-            float v_right = get_vx(smoke, (ivec2){x+1,y});
-            float v_bottom = get_vy(smoke, (ivec2){x,y});
-            float v_top = get_vy(smoke, (ivec2){x,y+1});
-
-            float delta_v = v_right - v_left + v_top - v_bottom;
-
             float p_left = get_pressure(smoke, (ivec2){x-1,y}) * (float) flow_left;
             float p_right = get_pressure(smoke, (ivec2){x+1,y}) * (float) flow_right;
             float p_top = get_pressure(smoke, (ivec2){x,y+1}) * (float) flow_top;
             float p_bottom = get_pressure(smoke, (ivec2){x,y-1}) * (float) flow_bottom;
 
+            const int i = IDX(x,y,smoke->size.x);
+
             float p_sum = p_left + p_right + p_top + p_bottom;
-            float p = (p_sum - config.cell_size * delta_v / config.time_step) / (float) f_sum;
-            smoke->pressure[IDX(x,y,smoke->size.x)] = p;
+            float p = (p_sum - smoke->residual[i]) / (float) f_sum;
+
+            smoke->pressure[i] += omega * (p - smoke->pressure[i]);
         }
     }
 }
 
 void solve_pressure(environment* smoke, const smoke_config config) {
-    const int ITERATIONS = 60;
+    const int ITERATIONS = 20;
+    precompute_residual(smoke, config);
     for (int i = 0; i < ITERATIONS; ++i) {
         solve_pressure_iteration(smoke, config);
     }

@@ -75,6 +75,7 @@ void init_env(environment* env, ivec2 size) {
     MALLOC(env->velocitiesy[1],(size_t)w * (h+1) * sizeof(float));
 
     MALLOC(env->pressure,(size_t) w * h * sizeof(float));
+    MALLOC(env->residual,(size_t) w * h * sizeof(float));
 
     MALLOC(env->smoke[0],(size_t) w * h * sizeof(fvec3));
     MALLOC(env->smoke[1],(size_t) w * h * sizeof(fvec3));
@@ -105,6 +106,7 @@ void reset_env(environment* env, const smoke_config config) {
             env->temp[1][idx] = config.t_ambient;
 
             env->pressure[idx] = 0;
+            env->residual[idx] = 0;
         }
     }
 
@@ -135,6 +137,7 @@ void free_env(environment* env) {
 
     FREE(env->solid);
     FREE(env->pressure);
+    FREE(env->residual);
 
     FREE(env->velocitiesy[0]);
     FREE(env->velocitiesy[1]);
