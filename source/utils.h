@@ -5,6 +5,8 @@
 #ifndef SMOKESSH_SMOKE_UTILS_H
 #define SMOKESSH_SMOKE_UTILS_H
 
+#include <stdlib.h>
+
 #define MALLOC(ptr, size)   \
 do {                        \
     (ptr) = malloc(size);   \

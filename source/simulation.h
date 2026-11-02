@@ -10,7 +10,7 @@
 #include "obstacles.h"
 #include "emitters.h"
 
-#include <signal.h>
+#include <stdint.h>
 
 #define MAX_ANY_SIZE 128
 #define MIN_ANY_SIZE 10
@@ -26,7 +26,8 @@ typedef struct environment {
     fvec3* smoke[2];
     float* temp[2];
 
-    int* solid;
+    uint8_t* solid;
+    uint8_t* nflow;
 
     int vx_idx, vy_idx;
     int s_idx;

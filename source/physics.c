@@ -2,13 +2,14 @@
 // Created by aaa on 16/10/2026.
 //
 
-#include <math.h>
-
 #include "physics.h"
 #include "config.h"
 #include "utils.h"
 
-int is_solid(const environment* smoke, const ivec2 p) {
+#include <time.h>
+#include <stdio.h>
+
+uint8_t is_solid(const environment* smoke, const ivec2 p) {
     if (p.x < 0 || p.y < 0 || p.x >= smoke->size.x || p.y >= smoke->size.y) {
         return 0;
     }
@@ -51,16 +52,39 @@ static void precompute_residual(environment* smoke, const smoke_config config) {
     for (int y = 0; y < smoke->size.y; ++y) {
         for (int x = 0; x < smoke->size.x; ++x) {
 
+            const int i = IDX(x,y,smoke->size.x);
+
+            if (is_solid(smoke, (ivec2){x,y})) {
+                smoke->nflow[i] = 0;
+                smoke->residual[i] = 0;
+                continue;
+            }
+
+            uint8_t f = 0;
+            f |= (!is_solid(smoke, (ivec2){x-1, y})) << 3;
+            f |= (!is_solid(smoke, (ivec2){x+1, y})) << 2;
+            f |= (!is_solid(smoke, (ivec2){x, y+1})) << 1;
+            f |= !is_solid(smoke, (ivec2){x, y-1});
+
+            smoke->nflow[i] = f;
+
             float v_left = get_vx(smoke, (ivec2){x,y});
             float v_right = get_vx(smoke, (ivec2){x+1,y});
             float v_bottom = get_vy(smoke, (ivec2){x,y});
             float v_top = get_vy(smoke, (ivec2){x,y+1});
 
             float delta_v = v_right - v_left + v_top - v_bottom;
-            smoke->residual[IDX(x,y,smoke->size.x)] = config.cell_size * delta_v / config.time_step;
+            smoke->residual[i] = config.cell_size * delta_v / config.time_step;
         }
     }
 }
+
+static const float INV_COUNT[16] = {
+    0.f, 1.f, 1.f, 1.f/2,
+    1.f, 1.f/2, 1.f/2, 1.f/3,
+    1.f, 1.f/2, 1.f/2, 1.f/3,
+    1.f/2, 1.f/3, 1.f/3, 1.f/4
+};
 
 static void solve_pressure_iteration(environment* smoke) {
     const float omega = 1.7f;
@@ -69,29 +93,18 @@ static void solve_pressure_iteration(environment* smoke) {
         for (int x = 0; x < smoke->size.x; ++x) {
             if (is_solid(smoke, (ivec2){x,y})) continue;
 
-            int solid_left = is_solid(smoke, (ivec2){x-1, y});
-            int solid_right = is_solid(smoke, (ivec2){x+1, y});
-            int solid_top = is_solid(smoke, (ivec2){x, y+1});
-            int solid_bottom = is_solid(smoke, (ivec2){x, y-1});
-
-            int flow_left = 1 - solid_left;
-            int flow_right = 1 - solid_right;
-            int flow_top = 1 - solid_top;
-            int flow_bottom = 1 - solid_bottom;
-
-            int f_sum = flow_left + flow_right + flow_top + flow_bottom;
-            if (f_sum == 0) continue;
-
-            float p_left = get_pressure(smoke, (ivec2){x-1,y}) * (float) flow_left;
-            float p_right = get_pressure(smoke, (ivec2){x+1,y}) * (float) flow_right;
-            float p_top = get_pressure(smoke, (ivec2){x,y+1}) * (float) flow_top;
-            float p_bottom = get_pressure(smoke, (ivec2){x,y-1}) * (float) flow_bottom;
-
             const int i = IDX(x,y,smoke->size.x);
 
-            float p_sum = p_left + p_right + p_top + p_bottom;
-            float p = (p_sum - smoke->residual[i]) / (float) f_sum;
+            const uint8_t f = smoke->nflow[i];
+            if (f == 0) continue;
 
+            float p_sum = 0.0f;
+            if (f & 0x8) p_sum += get_pressure(smoke, (ivec2){x-1,y});
+            if (f & 0x4) p_sum += get_pressure(smoke, (ivec2){x+1,y});
+            if (f & 0x2) p_sum += get_pressure(smoke, (ivec2){x,y+1});
+            if (f & 0x1) p_sum += get_pressure(smoke, (ivec2){x,y-1});
+
+            float p = (p_sum - smoke->residual[i]) * INV_COUNT[f];
             smoke->pressure[i] += omega * (p - smoke->pressure[i]);
         }
     }
@@ -99,6 +112,7 @@ static void solve_pressure_iteration(environment* smoke) {
 
 void solve_pressure(environment* smoke, const smoke_config config) {
     const int ITERATIONS = 20;
+
     precompute_residual(smoke, config);
     for (int i = 0; i < ITERATIONS; ++i) {
         solve_pressure_iteration(smoke);

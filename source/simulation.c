@@ -83,7 +83,8 @@ void init_env(environment* env, ivec2 size) {
     MALLOC(env->temp[0],(size_t) w * h * sizeof(float));
     MALLOC(env->temp[1],(size_t) w * h * sizeof(float));
 
-    MALLOC(env->solid,(size_t) w * h * sizeof(int));
+    MALLOC(env->solid,(size_t) w * h * sizeof(uint8_t));
+    MALLOC(env->nflow,(size_t) w * h * sizeof(uint8_t));
 
     env->s_idx = env->vx_idx = env->vy_idx = 0;
 }
@@ -138,6 +139,7 @@ void free_env(environment* env) {
     FREE(env->temp[1]);
 
     FREE(env->solid);
+    FREE(env->nflow);
     FREE(env->pressure);
     FREE(env->residual);
 

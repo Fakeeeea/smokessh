@@ -4,6 +4,7 @@
 
 #include "terminal.h"
 
+#include <signal.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -11,7 +12,6 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
-#include "graphics.h"
 #include "simulation.h"
 #include "app.h"
 
