@@ -21,6 +21,12 @@ Move an object around various scenarios and switch up settings to your liking.
 - t "number" → sets the ambient temperature to number
 - w "number" → sets the wind to number
 
+Example:
+```
+./smokessh -f120 -d"../presets/" -t300
+```
+Sets target fps to 120, presets folder to ../presets/, and ambient temperature to 300.
+
 > [!IMPORTANT]
 > There must be a "default" properly defined emitter file either in the same directory of 
 > the executable or in the -d flag defined folder.
@@ -48,4 +54,5 @@ emitter 50 50 10 10 10 277
 > Smoke might appear stuck when using units percent due to the percentage causing the smoke
 > to spawn on the solid walls of the simulation. Use higher percentage, or switch to units
 
-
+## Building
+wip!!
