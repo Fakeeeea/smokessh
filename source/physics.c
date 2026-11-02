@@ -62,11 +62,13 @@ static void precompute_residual(environment* smoke, const smoke_config config) {
     }
 }
 
-static void solve_pressure_iteration(environment* smoke, const smoke_config config) {
+static void solve_pressure_iteration(environment* smoke) {
     const float omega = 1.7f;
 
     for (int y = 0; y < smoke->size.y; ++y) {
         for (int x = 0; x < smoke->size.x; ++x) {
+            if (is_solid(smoke, (ivec2){x,y})) continue;
+
             int solid_left = is_solid(smoke, (ivec2){x-1, y});
             int solid_right = is_solid(smoke, (ivec2){x+1, y});
             int solid_top = is_solid(smoke, (ivec2){x, y+1});
@@ -99,7 +101,7 @@ void solve_pressure(environment* smoke, const smoke_config config) {
     const int ITERATIONS = 20;
     precompute_residual(smoke, config);
     for (int i = 0; i < ITERATIONS; ++i) {
-        solve_pressure_iteration(smoke, config);
+        solve_pressure_iteration(smoke);
     }
 }
 
@@ -120,6 +122,7 @@ void update_vx(environment* smoke, const smoke_config config) {
         }
     }
 }
+
 void update_vy(environment* smoke, const smoke_config config) {
     const float k = - config.time_step / config.cell_size;
     for (int y = 0; y <= smoke->size.y; ++y) {
@@ -257,8 +260,19 @@ fvec2 get_interpolated_velocity(const environment* smoke, const smoke_config con
 void update_solid_map(environment* smoke, const smoke_config config, const obstacle o) {
     const int r_squared = o.radius * o.radius;
 
-    for (int y = 0; y < smoke->size.y; ++y) {
-        for (int x = 0; x < smoke->size.x; ++x) {
+    //todo notes: maybe if I store movement, I can narrow down where to extend search radius. But is it worth it?
+    /* obstacle moves max 1 per iteration, so if we increase the bounding box of 1 we can clear old frame garbage
+     * in the next frame as obstacle moves
+     */
+
+    int start_x = o.location.x - o.radius-1; if (start_x < 0) start_x = 0;
+    int start_y = o.location.y - o.radius-1; if (start_y < 0) start_y = 0;
+
+    int end_x = o.location.x + o.radius+2; if (end_x > smoke->size.x) end_x = smoke->size.x - 1;
+    int end_y = o.location.y + o.radius+2; if (end_y > smoke->size.y) end_y = smoke->size.y - 1;
+
+    for (int y = start_y; y < end_y; ++y) {
+        for (int x = start_x; x < end_x; ++x) {
             const int idx = IDX(x,y,smoke->size.x);
 
             const int cond = config.wind == 0 ? (x == 0 || y == 0 || x == smoke->size.x-1 || y == smoke->size.y-1) :

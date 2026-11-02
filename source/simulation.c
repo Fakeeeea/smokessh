@@ -94,7 +94,9 @@ void reset_env(environment* env, const smoke_config config) {
 
             int idx = IDX(x,y,env->size.x);
 
-            if (x == 0 || y == 0 || x == env->size.x-1 || y == env->size.y-1) {
+            const int cond = config.wind == 0 ? (x == 0 || y == 0 || x == env->size.x-1 || y == env->size.y-1) :
+                                                (y == 0 || y == env->size.y-1);
+            if (cond) {
                 env->solid[idx] = 1;
             } else {
                 env->solid[idx] = 0;

@@ -28,7 +28,9 @@ void advect_vx(environment* smoke, smoke_config config);
 void advect_vy(environment* smoke, smoke_config config);
 void apply_temperature(environment* smoke, smoke_config config);
 void apply_wind(environment* smoke, smoke_config config);
+
 void update_solid_map(environment* smoke, smoke_config config, obstacle o);
+
 void handle_emitter(environment* smoke, const emitter* emitters, int e_num);
 
 fvec2 get_interpolated_velocity(const environment* smoke, smoke_config config, fvec2 p);
