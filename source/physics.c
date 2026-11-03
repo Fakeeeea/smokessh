@@ -231,7 +231,7 @@ void apply_temperature(environment* smoke, const smoke_config config) {
                 continue;
             };
 
-            fvec2 pos = (fvec2){ (float) x + 0.5f, (float) y};
+            fvec2 pos = (fvec2){ (float) x, (float) y - 0.5f};
             float temperature = sample_bilinear(smoke->temp[smoke->s_idx], smoke->size.x, smoke->size.y, pos.x, pos.y);
             fvec3 smoke_data = sample_bilinear_fvec3(smoke->smoke[smoke->s_idx], smoke->size.x, smoke->size.y, pos.x, pos.y);
 
@@ -282,8 +282,8 @@ void update_solid_map(environment* smoke, const smoke_config config, const obsta
     int start_x = o.location.x - o.radius-1; if (start_x < 0) start_x = 0;
     int start_y = o.location.y - o.radius-1; if (start_y < 0) start_y = 0;
 
-    int end_x = o.location.x + o.radius+2; if (end_x > smoke->size.x) end_x = smoke->size.x - 1;
-    int end_y = o.location.y + o.radius+2; if (end_y > smoke->size.y) end_y = smoke->size.y - 1;
+    int end_x = o.location.x + o.radius+2; if (end_x > smoke->size.x) end_x = smoke->size.x;
+    int end_y = o.location.y + o.radius+2; if (end_y > smoke->size.y) end_y = smoke->size.y;
 
     for (int y = start_y; y < end_y; ++y) {
         for (int x = start_x; x < end_x; ++x) {
