@@ -101,3 +101,7 @@ The SSH server accepts a few flags:
 - -ip "4" or "6" sets IPv4 or IPv6
 - -presets "path/to/presets/dir" sets the presets directory location
 - -exe "path/to/executable" sets the smokessh executable location
+
+Connect through
+
+'ssh -p 2222 localhost'
