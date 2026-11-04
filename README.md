@@ -104,4 +104,4 @@ The SSH server accepts a few flags:
 
 Connect through
 
-'ssh -p 2222 localhost'
+```ssh -p 2222 localhost```
