@@ -3,6 +3,10 @@
 >[!TIP]
 >Have IPv6? Try it out at ```ssh -p 2222 smokessh.awokolaw.com```
 
+<p align="center">
+    <img src="assets/showcase_image.png" alt="showcase image">
+</p>
+
 Terminal smoke simulator made in C, wrapped around a Go ssh server.
 Move an object around various scenarios and switch up settings to your liking.
 
