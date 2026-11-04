@@ -4,7 +4,7 @@
 >Have IPv6? Try it out at ```ssh -p 2222 smokessh.awokolaw.com```
 
 <p align="center">
-    <img src="assets/showcase_image.png" alt="showcase image">
+    <img src="assets/showcase_image.jpeg" alt="showcase image">
 </p>
 
 Terminal smoke simulator made in C, wrapped around a Go ssh server.
