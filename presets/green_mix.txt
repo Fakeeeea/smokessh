@@ -1,0 +1,4 @@
+units percent
+emitter 10 10 17 26 16 300
+emitter 50 10 0 20 6 300
+emitter 90 10 17 26 16 300

@@ -1,0 +1,7 @@
+units percent
+
+emitter 10 10 10 10 10 277
+emitter 10 30 10 10 10 277
+emitter 10 50 10 10 10 277
+emitter 10 70 10 10 10 277
+emitter 10 90 10 10 10 277
