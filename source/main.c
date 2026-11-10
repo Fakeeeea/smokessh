@@ -63,7 +63,7 @@ void parse_flags(int argc, char *argv[]) {
                 break;
             case 'h':
                 fprintf(stdout, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-d emitters_dir]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n", argv[0]);
-                exit(EXIT_FAILURE);
+                exit(EXIT_SUCCESS);
             default:
                 fprintf(stderr, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-d emitters_dir]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n", argv[0]);
                 exit(EXIT_FAILURE);
