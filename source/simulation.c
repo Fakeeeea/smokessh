@@ -34,7 +34,7 @@ void free_simulation(simulation *s) {
     free_emitters(&s->emitters, &s->e_num);
 }
 
-void restart_simulation(simulation *s, ivec2 size) {
+void restart_simulation(simulation *s, const ivec2 size) {
     free_env(&s->env);
     init_env(&s->env, size);
     reset_env(&s->env, s->config);
@@ -61,7 +61,7 @@ void run(simulation* sim) {
     sim->env.s_idx = 1 - sim->env.s_idx;
 }
 
-void init_env(environment* env, ivec2 size) {
+void init_env(environment* env, const ivec2 size) {
 
     env->size = size;
 

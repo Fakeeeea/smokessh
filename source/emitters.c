@@ -13,9 +13,9 @@
 #define MAX_LINE 256
 #define DEFAULT_EMITTER_FILE "default"
 
-void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_counter, ivec2 size) {
-    *emitter_array = NULL;
-    *emitter_counter = 0;
+void parse_emitters(smoke_config config, emitter** emitters, int* e_num, const ivec2 size) {
+    *emitters = NULL;
+    *e_num = 0;
 
     int from_stdin = 0;
     FILE* fptr;
@@ -123,8 +123,8 @@ void parse_emitters(smoke_config config, emitter** emitter_array, int* emitter_c
     }
 
     if (!from_stdin) fclose(fptr);
-    *emitter_array = arr;
-    *emitter_counter = count;
+    *emitters = arr;
+    *e_num = count;
 
     clearerr(stdin);
 

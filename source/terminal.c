@@ -26,7 +26,6 @@ static struct sigaction sa_int;
 
 static int terminal_ready = 0;
 
-//static simulation *registered_simulation = NULL;
 static app *registered_app = NULL;
 
 void setup_terminal() {
@@ -100,12 +99,12 @@ ivec2 detect_size() {
     return size;
 }
 
-static void resize_handler(int sig) {
+static void resize_handler(const int sig) {
     (void)sig;
     resize_pending = 1;
 }
 
-static void sigint_handler(int sig) {
+static void sigint_handler(const int sig) {
     (void)sig;
     keep_running = 0;
 }

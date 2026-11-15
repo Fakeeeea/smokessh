@@ -28,7 +28,7 @@ float sample_bilinear(const float* data, const int width, const int height, cons
     return lerp(a, b, ty);
 }
 
-fvec3 sample_bilinear_fvec3(const fvec3* data, int width, int height, float x, float y) {
+fvec3 sample_bilinear_fvec3(const fvec3* data, const int width, const int height, const float x, const float y) {
     int x0 = (int) floorf(x);
     int y0 = (int) floorf(y);
 

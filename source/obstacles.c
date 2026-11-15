@@ -26,7 +26,7 @@ void move_obstacle(obstacle *o, const ivec2 new_pos, const ivec2 size) {
     clamp_obstacle(o, size);
 }
 
-void handle_obstacle_movement(obstacle *o, int code, const ivec2 size) {
+void handle_obstacle_movement(obstacle *o, const int code, const ivec2 size) {
     ivec2 mov = {0,0};
     switch (code) {
         case ACT_RIGHT: mov.x++; break;

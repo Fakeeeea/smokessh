@@ -37,7 +37,7 @@ static void push_str(const char* str) {
     }
 }
 
-static int push_str_truncated(char* str, int max_len) {
+static int push_str_truncated(const char* str, const int max_len) {
     if (max_len <= 0) return 0;
 
     const int len = (int)strlen(str);
@@ -58,7 +58,7 @@ static void push_int(const int n) {
     push_char((char)((int)'0' + n % 10));
 }
 
-static void move_cursor(int r, int c) {
+static void move_cursor(const int r, const int c) {
     push_str("\033["), push_int(r), push_char(';'), push_int(c), push_char('H');
 }
 
@@ -74,7 +74,7 @@ static void show_cursor() {
     push_str("\033[?25h");
 }
 
-static void set_background(int index) {
+static void set_background(const int index) {
     push_str("\033[48;5;");
     push_int(index);
     push_char('m');
@@ -107,7 +107,7 @@ static void set_color_rgb(int r, int g, int b) {
     push_char('m');
 }
 
-static void set_color_index(int index) {
+static void set_color_index(const int index) {
     push_str("\033[38;5;");
     push_int(index);
     push_char('m');
@@ -164,7 +164,7 @@ static void set_strikethrough() {
     push_str("\033[9m");
 }
 
-static int push_float(float n) {
+static int push_float(const float n) {
     char buf[256];
 
     int written_bytes = sprintf(buf, "%.3f", n);
@@ -184,7 +184,7 @@ void init_graphics() {
     hide_cursor();
 }
 
-static void print_header(ivec2 size) {
+static void print_header(const ivec2 size) {
 
     move_cursor(1,1);
     set_background(get_closest_color_index(0,250,250));
@@ -270,7 +270,7 @@ void clean_screen() {
     print_framebuffer();
 }
 
-void draw_text(int col, int row, const char* str, int fg, int bg, int flags) {
+void draw_text(const int col, const int row, const char* str, const int fg, const int bg, const int flags) {
 
     if (BOLD & flags) set_bold();
     if (ITALIC & flags) set_italic();

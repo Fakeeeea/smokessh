@@ -11,6 +11,7 @@
 #include "emitters.h"
 
 #include <stdint.h>
+#include <pthread.h>
 
 #define MAX_ANY_SIZE 128
 #define MIN_ANY_SIZE 10

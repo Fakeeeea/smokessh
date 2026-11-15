@@ -259,7 +259,7 @@ void handle_emitter(environment* smoke, const emitter* emitters, const int e_num
     }
 }
 
-fvec2 get_interpolated_velocity(const environment* smoke, const smoke_config config, fvec2 p) {
+fvec2 get_interpolated_velocity(const environment* smoke, const smoke_config config, const fvec2 p) {
     fvec2 v;
 
     float gx = p.x / config.cell_size;
@@ -308,7 +308,7 @@ void update_solid_map(environment* smoke, const smoke_config config, const obsta
     }
 }
 
-void apply_wind(environment* smoke, smoke_config config) {
+void apply_wind(environment* smoke, const smoke_config config) {
     int x = config.wind >= 0 ? 0 : smoke->size.x;
 
     for (int y = 0; y < smoke->size.y; ++y) {

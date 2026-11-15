@@ -77,7 +77,7 @@ static void scan_presets() {
     qsort(m->presets, (size_t)m->preset_count, PRESET_NAME_LEN, qsort_cmp);
 }
 
-static void select_preset(int id) {
+static void select_preset(const int id) {
     snprintf(m->selected, sizeof(m->selected), "%s/%s", m->config->emitter_dir, m->presets[id]);
     m->config->emitter_file = m->selected;
     prev_page(0);
