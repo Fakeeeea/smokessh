@@ -117,10 +117,6 @@ The SSH server accepts a few flags:
 | -max-per-ip | integer | sets max concurrent sessions per ip | 2 |
 | -max-sessions | integer | sets max concurrent sessions overall | 5 |
 
-- -ip "4" or "6" sets IPv4 or IPv6
-- -presets "path/to/presets/dir" sets the presets directory location
-- -exe "path/to/executable" sets the smokessh executable location
-
 Connect through
 
 ```ssh -p 2222 localhost```
