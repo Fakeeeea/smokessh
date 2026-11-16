@@ -15,15 +15,18 @@ Move an object around various scenarios and switch up settings to your liking.
 > These flags apply to the executable itself, and not to the ssh server.
 
 ```./smokessh [-cdefhostw]```
-- -c "number" → sets the cell size to number
-- -d "path" → searches for presets in path instead of ./
-- -e "file" → loads file as default emitter file
-- -f "number" → sets the target fps to number
-- -h → shows usage information
-- -o "number" → sets the obstacle radius to number
-- -s "number" → sets the timestep to number
-- -t "number" → sets the ambient temperature to number
-- -w "number" → sets the wind to number
+
+| Flag | Argument | Description | Default |
+| --- | --- | --- | -- |
+| -c | float | sets the cell size | 0.1 |
+| -d | string | searches for presets in defined path | ./ |
+| -e | string | loads provided file as default emitter file | default |
+| -f | integer | sets the target fps | 30 |
+| -h | | shows usage information | |
+| -o | integer | sets the obstacle radius | 2 |
+| -s | float | sets the timestep | 0.0167 |
+| -t | float | sets ambient temperature | 273 |
+| -w | float | sets wind value | 0.0 |
 
 Example:
 ```
@@ -101,6 +104,18 @@ The wrapper launches the C executable for each SSH session, so it must be able t
 find it. Run it from a directory containing the C binary and your presets.
 
 The SSH server accepts a few flags:
+
+| Flag | Argument | Description | Default |
+| --- | --- | --- | --- |
+| -ip | 4 or 6 | sets IP version | 4 |
+| -presets | string | sets presets directory | ./presets |
+| -exe | string | sets executable path and name | ./smokessh |
+| -port | integer | sets port number | 2222 |
+| -hostkey | string | sets path to ssh host key | /keys/host_ed25519 |
+| -idle-timeout | duration | sets max inactivity time | 2m |
+| -max-session | duration | sets max session duration | 15m |
+| -max-per-ip | integer | sets max concurrent sessions per ip | 2 |
+| -max-sessions | integer | sets max concurrent sessions overall | 5 |
 
 - -ip "4" or "6" sets IPv4 or IPv6
 - -presets "path/to/presets/dir" sets the presets directory location

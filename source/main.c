@@ -5,7 +5,6 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 
 #include "config.h"
@@ -13,6 +12,7 @@
 #include "terminal.h"
 #include "physics.h"
 
+//todo pass by ref to not pass 4kb path every time
 smoke_config config = {
     .target_fps = 30,
     .emitter_file = NULL,

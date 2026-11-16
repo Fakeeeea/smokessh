@@ -61,13 +61,13 @@ static void handle_resize(app *a) {
 void app_run(app* a) {
     while (should_keep_running() && a->state != APP_QUIT) {
         handle_resize(a);
-        int in = parse_input();
+        const int in = parse_input();
 
         frame_start();
 
         switch (a->state) {
             case APP_MENU: {
-                int next = update_menu(in);
+                const int next = update_menu(in);
                 if (next == APP_SIM) {
                     free_simulation(&a->sim);
                     a->sim = init_simulation(a->config, a->size);
