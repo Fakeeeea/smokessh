@@ -21,16 +21,17 @@ import (
     "github.com/creack/pty"
 )
 
-const (
-    port = "2222";
-    hostKey = "/keys/host_ed25519"
-)
-
 func main() {
 
-    ipVersion := flag.String("ip", "4", "IP version to listen on: 4 or 6");
-    presetsDir := flag.String("presets", "./presets", "presets directory");
-    exe := flag.String("exe", "./smokessh", "path and name of the executable to run");
+    ipVersion := flag.String("ip", "4", "IP version to listen on: 4 or 6")
+    presetsDir := flag.String("presets", "./presets", "presets directory")
+    exe := flag.String("exe", "./smokessh", "path and name of the executable to run")
+    port := flag.String("port", "2222", "port to listen on")
+    hostKey := flag.String("hostkey", "/keys/host_ed25519", "path to SSH host key (gen if missing)")
+    idleTimeout := flag.Duration("idle-timeout", 2*time.Minute, "disconnect after this much inactivity")
+    maxSession := flag.Duration("max-session", 15*time.Minute, "max session length")
+    maxPerIP := flag.Int("max-per-ip", 2, "maximum concurrent sessions per IP")
+    maxTotal := flag.Int("max-sessions", 5, "maximum concurrent sessions overall")
     flag.Parse();
 
     var network, host string
@@ -72,11 +73,13 @@ func main() {
             log.Fatalf("cannot make presets path relative to the executable: %v", err)
         }
 
-    addr := net.JoinHostPort(host, port);
+    addr := net.JoinHostPort(host, *port);
 
     s, err := wish.NewServer(
         wish.WithAddress(addr),
-        wish.WithHostKeyPath(hostKey),
+        wish.WithHostKeyPath(*hostKey),
+        wish.WithIdleTimeout(*idleTimeout),
+        wish.WithMaxTimeout(*maxSession),
         wish.WithPublicKeyAuth(func(ssh.Context, ssh.PublicKey) bool { return true; }),
         wish.WithPasswordAuth(func(ssh.Context, string) bool { return true; }),
         wish.WithMiddleware(runApp(exePath, presetsRel), activeterm.Middleware()),
@@ -86,8 +89,19 @@ func main() {
         log.Fatalln(err)
     }
 
+    lim := newLimiter(*maxPerIP, *maxTotal)
     s.ConnCallback = func(_ ssh.Context, conn net.Conn) net.Conn {
-   		return newLoggedConn(conn)
+        ip, _, err := net.SplitHostPort(conn.RemoteAddr().String())
+        if err != nil {
+            ip = conn.RemoteAddr().String()
+        }
+        if !lim.acquire(ip) {
+            log.Printf("rejected: %s (limit reached)", ip)
+            conn.Close()
+            return nil
+        }
+        log.Printf("connected: %s", ip)
+   		return &loggedConn{Conn: conn, ip: ip, start: time.Now(), lim: lim}
    	}
 
     ln, err := net.Listen(network, addr)
@@ -114,24 +128,49 @@ func main() {
     }
 }
 
+type limiter struct {
+    mu sync.Mutex
+    perIp map[string]int
+    total int
+    maxPerIP int
+    maxTotal int
+}
+
+func newLimiter(maxPerIP maxTotal int) *limiter {
+    return &limiter{perIP: make(map[string]int), maxPerIP: maxPerIP, maxTotal: maxTotal}
+}
+
+func (l *limiter) acquire(ip string) bool {
+    l.mu.Lock()
+    defer l.mu.Unlock()
+    if l.total >= l.maxTotal || l.perIP[ip] >= l.maxPerIP {
+        return false
+    }
+    l.total++
+    l.perIP[ip]++
+    return true
+}
+
+func(l *limiter) release(ip string) {
+    l.mu.Lock()
+    defer l.mu.Unlock()
+    l.total--
+    if l.perIP[ip]--; l.perIP[ip] <= 0 {
+        delete(l.perIP, ip)
+    }
+}
+
 type loggedConn struct {
     net.Conn
     ip string
     start time.Time
     once sync.Once
-}
-
-func newLoggedConn(c net.Conn) net.Conn {
-    ip, _, err := net.SplitHostPort(c.RemoteAddr().String())
-    if err != nil {
-        ip = c.RemoteAddr().String()
-    }
-    log.Printf("Connected: %s", ip)
-    return &loggedConn{Conn: c, ip: ip, start: time.Now()}
+    lim *limiter
 }
 
 func (c *loggedConn) Close() error {
     c.once.Do(func() {
+        c.lim.release(c.ip)
         log.Printf("disconnected: %s (after %s)", c.ip, time.Since(c.start).Round(time.Second))
     })
     return c.Conn.Close()

@@ -65,14 +65,32 @@ action parse_input() {
     ssize_t n;
 
     while ((n = read(STDIN_FILENO, &c, 1)) > 0) {
-        switch (c) {
-            case 'a': case 'A': out = ACT_LEFT; break;
-            case 'd': case 'D': out = ACT_RIGHT; break;
-            case 'w': case 'W': out = ACT_UP; break;
-            case 's': case 'S': out = ACT_DOWN; break;
-            case 'q': case 'Q': out = ACT_QUIT; break;
-            case '\n': out = ACT_SELECT; break;
-            default: break;
+
+        if (c == '\033') {
+            char seq[2];
+
+            if (read(STDIN_FILENO, &seq[0], 1) <= 0) break;
+            if (read(STDIN_FILENO, &seq[1], 1) <= 0) break;
+
+            if (seq[0] == '[') {
+                switch (seq[1]) {
+                    case 'A': out = ACT_UP; break;
+                    case 'B': out = ACT_DOWN; break;
+                    case 'C': out = ACT_RIGHT; break;
+                    case 'D': out = ACT_LEFT; break;
+                    default: break;
+                }
+            }
+        } else {
+            switch (c) {
+                case 'a': case 'A': out = ACT_LEFT; break;
+                case 'd': case 'D': out = ACT_RIGHT; break;
+                case 'w': case 'W': out = ACT_UP; break;
+                case 's': case 'S': out = ACT_DOWN; break;
+                case 'q': case 'Q': out = ACT_QUIT; break;
+                case '\n': out = ACT_SELECT; break;
+                default: break;
+            }
         }
     }
 

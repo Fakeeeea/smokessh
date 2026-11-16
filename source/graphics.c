@@ -164,6 +164,7 @@ static void set_strikethrough() {
     push_str("\033[9m");
 }
 
+/* currently unused
 static int push_float(const float n) {
     char buf[256];
 
@@ -172,6 +173,7 @@ static int push_float(const float n) {
 
     return written_bytes;
 }
+*/
 
 void init_graphics() {
     for (int y = 0; y < MAX_ANY_SIZE; ++y) {

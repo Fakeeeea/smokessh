@@ -34,7 +34,7 @@ void parse_flags(int argc, char *argv[]) {
     while ((opt = getopt(argc, argv, "d:f:e:t:s:c:o:w:h")) != -1) {
         switch (opt) {
             case 'd':
-                strcpy(config.emitter_dir, optarg);
+                snprintf(config.emitter_dir, PATH_MAX, "%s", optarg);
                 break;
             case 'f':
                 config.target_fps = (int)strtol(optarg, &end_ptr, 10);

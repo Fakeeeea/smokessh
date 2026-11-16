@@ -18,7 +18,7 @@
 #define ITALIC 0x2
 #define UNDERLINE 0x4
 #define STRIKETHROUGH 0x8
-#define FAINT 0x16
+#define FAINT 0x10
 #define BLINK 0x20
 
 
