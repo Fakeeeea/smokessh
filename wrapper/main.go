@@ -130,13 +130,13 @@ func main() {
 
 type limiter struct {
     mu sync.Mutex
-    perIp map[string]int
+    perIP map[string]int
     total int
     maxPerIP int
     maxTotal int
 }
 
-func newLimiter(maxPerIP maxTotal int) *limiter {
+func newLimiter(maxPerIP, maxTotal int) *limiter {
     return &limiter{perIP: make(map[string]int), maxPerIP: maxPerIP, maxTotal: maxTotal}
 }
 
