@@ -23,6 +23,7 @@ smoke_config config = {
     .time_step = TIMESTEP,
     .obstacle_radius = INIT_RADIUS,
     .wind = 0,
+    .decay = DECAY,
 };
 
 simulation sim;
@@ -31,7 +32,7 @@ void parse_flags(int argc, char *argv[]) {
     int opt;
     char* end_ptr;
 
-    while ((opt = getopt(argc, argv, "d:f:e:t:s:c:o:w:h")) != -1) {
+    while ((opt = getopt(argc, argv, "d:e:f:l:t:s:c:o:w:h")) != -1) {
         switch (opt) {
             case 'd':
                 snprintf(config.emitter_dir, PATH_MAX, "%s", optarg);
@@ -61,11 +62,14 @@ void parse_flags(int argc, char *argv[]) {
             case 'w':
                 config.wind = strtof(optarg, &end_ptr);
                 break;
+            case 'l':
+                config.decay = strtof(optarg, &end_ptr);
+                break;
             case 'h':
-                fprintf(stdout, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-d emitters_dir]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n", argv[0]);
+                fprintf(stdout, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-d emitters_dir]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n [-l decay]", argv[0]);
                 exit(EXIT_SUCCESS);
             default:
-                fprintf(stderr, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-d emitters_dir]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n", argv[0]);
+                fprintf(stderr, "Usage %s [-f target_fps]\n [-e emitters_file ('-' stdin)]\n [-d emitters_dir]\n [-t t_ambient]\n [-s time_step]\n [-c cell_size]\n [-o obstacle_radius]\n [-w wind]\n [-l decay]", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }

@@ -43,21 +43,21 @@ void restart_simulation(simulation *s, const ivec2 size) {
 
 void run(simulation* sim) {
     handle_emitter(&sim->env, sim->emitters, sim->e_num);
-    update_solid_map(&sim->env, sim->config, sim->obstacle);
+    update_solid_map(&sim->env, &sim->config, sim->obstacle);
 
-    advect_vx(&sim->env, sim->config), advect_vy(&sim->env, sim->config);
+    advect_vx(&sim->env, &sim->config), advect_vy(&sim->env, &sim->config);
     sim->env.vx_idx = 1 - sim->env.vx_idx, sim->env.vy_idx = 1 - sim->env.vy_idx;
 
-    apply_temperature(&sim->env, sim->config);
+    apply_temperature(&sim->env, &sim->config);
     sim->env.vy_idx = 1 - sim->env.vy_idx;
 
-    apply_wind(&sim->env, sim->config);
+    apply_wind(&sim->env, &sim->config);
 
-    solve_pressure(&sim->env, sim->config);
-    update_vx(&sim->env, sim->config), update_vy(&sim->env, sim->config);
+    solve_pressure(&sim->env, &sim->config);
+    update_vx(&sim->env, &sim->config), update_vy(&sim->env, &sim->config);
     sim->env.vx_idx = 1 - sim->env.vx_idx, sim->env.vy_idx = 1 - sim->env.vy_idx;
 
-    advect_smoke(&sim->env, sim->config);
+    advect_smoke(&sim->env, &sim->config);
     sim->env.s_idx = 1 - sim->env.s_idx;
 }
 

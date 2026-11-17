@@ -27,6 +27,7 @@ Move an object around various scenarios and switch up settings to your liking.
 | -s | float | sets the timestep | 0.0167 |
 | -t | float | sets ambient temperature | 273 |
 | -w | float | sets wind value | 0.0 |
+| -l | float | decay | 1.0f (no decay) |
 
 Example:
 ```

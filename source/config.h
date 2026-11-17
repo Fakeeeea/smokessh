@@ -18,6 +18,7 @@ typedef struct smoke_config {
     float cell_size;
     float time_step;
     float wind;
+    float decay;
 }smoke_config;
 
 #endif //SMOKESSH_CONFIG_H

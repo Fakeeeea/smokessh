@@ -150,6 +150,7 @@ void init_menu(menu* i_menu, smoke_config* config) {
     add_widget(&P(PAGE_CONFIG), create_input_f("Cell size", &config->cell_size, 0.01f, 1, 0.01f));
     add_widget(&P(PAGE_CONFIG), create_input_f("Time step", &config->time_step, 0.001f, 1, 0.001f));
     add_widget(&P(PAGE_CONFIG), create_input_f("Wind", &config->wind, -10, 10, 1));
+    add_widget(&P(PAGE_CONFIG), create_input_f("Decay", &config->decay, 0, 1.0f, 0.001f));
     add_widget(&P(PAGE_CONFIG), create_button("Back", BACK, prev_page));
 #undef P
 
