@@ -65,7 +65,12 @@ static void scan_presets() {
         if (strlen(e->d_name) >= PRESET_NAME_LEN) continue;
 
         char path[PATH_MAX];
-        snprintf(path, sizeof(path), "%s/%s", m->config->emitter_dir, e->d_name);
+        const int len = snprintf(path, sizeof(path), "%s/%s", m->config->emitter_dir, e->d_name);
+
+        if (len < 0 || (size_t) len >= sizeof(path)) {
+            fprintf(stderr, "Error: constructed path while scanning presets is too long\n");
+            return;
+        }
 
         struct stat st;
         if (stat(path, &st) != 0 || !S_ISREG(st.st_mode)) continue;
@@ -78,7 +83,13 @@ static void scan_presets() {
 }
 
 static void select_preset(const int id) {
-    snprintf(m->selected, sizeof(m->selected), "%s/%s", m->config->emitter_dir, m->presets[id]);
+    const int len = snprintf(m->selected, sizeof(m->selected), "%s/%s", m->config->emitter_dir, m->presets[id]);
+
+    if (len < 0 || (size_t) len >= sizeof(m->selected)) {
+        fprintf(stderr, "Error: selected path too long\n");
+        return;
+    }
+
     m->config->emitter_file = m->selected;
     prev_page(0);
 }

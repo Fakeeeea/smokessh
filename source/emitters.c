@@ -33,7 +33,12 @@ void parse_emitters(smoke_config config, emitter** emitters, int* e_num, const i
         from_stdin = 1;
     } else {
         char default_path[PATH_MAX];
-        snprintf(default_path, sizeof(default_path), "%s/%s", config.emitter_dir, DEFAULT_EMITTER_FILE);
+        int len = snprintf(default_path, sizeof(default_path), "%s/%s", config.emitter_dir, DEFAULT_EMITTER_FILE);
+
+        if (len < 0 || (size_t) len >= sizeof(default_path)) {
+            fprintf(stderr, "Error: emitter path is too long\n");
+            return;
+        }
 
         fptr = fopen(default_path, "r");
 
@@ -58,7 +63,7 @@ void parse_emitters(smoke_config config, emitter** emitters, int* e_num, const i
 
         char* hash = strchr(line, '#');
         if (hash) *hash = '\0';
-        char *p = line;
+        const char *p = line;
         while (*p == ' ' || *p == '\t') p++;
         if (*p == '\0' || *p == '\n' || *p == '\r') continue;
 
@@ -99,8 +104,8 @@ void parse_emitters(smoke_config config, emitter** emitters, int* e_num, const i
             e->densities.x = d0, e->densities.y = d1, e->densities.z = d2;
             e->temperature = temp;
             if (percent) {
-                e->location.x = (int)(size.x * x / 100.0f);
-                e->location.y = (int)(size.y * y / 100.0f);
+                e->location.x = (int)((float)size.x * x / 100.0f);
+                e->location.y = (int)((float)size.y * y / 100.0f);
             } else {
                 e->location.x = (int)x;
                 e->location.y = (int)y;

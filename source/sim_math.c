@@ -12,10 +12,17 @@ float sample_bilinear(const float* data, const int width, const int height, cons
     int x1 = x0 +1;
     int y1 = y0 +1;
 
-    if (x0 < 0) x0 = 0; if (x0 >= width) x0 = width-1;
-    if (y0 < 0) y0 = 0; if (y0 >= height) y0 = height-1;
-    if (x1 >= width) x1 = width-1; if (x1 < 0) x1 = 0;
-    if (y1 >= height) y1 = height-1; if (y1 < 0) y1 = 0;
+    if (x0 < 0) x0 = 0;
+    if (x0 >= width) x0 = width-1;
+
+    if (y0 < 0) y0 = 0;
+    if (y0 >= height) y0 = height-1;
+
+    if (x1 >= width) x1 = width-1;
+    if (x1 < 0) x1 = 0;
+
+    if (y1 >= height) y1 = height-1;
+    if (y1 < 0) y1 = 0;
 
     const float tx = x - (float)x0;
     const float ty = y - (float)y0;
@@ -35,10 +42,17 @@ fvec3 sample_bilinear_fvec3(const fvec3* data, const int width, const int height
     int x1 = x0 +1;
     int y1 = y0 +1;
 
-    if (x0 < 0) x0 = 0; if (x0 >= width) x0 = width-1;
-    if (y0 < 0) y0 = 0; if (y0 >= height) y0 = height-1;
-    if (x1 >= width) x1 = width-1; if (x1 < 0) x1 = 0;
-    if (y1 >= height) y1 = height-1; if (y1 < 0) y1 = 0;
+    if (x0 < 0) x0 = 0;
+    if (x0 >= width) x0 = width-1;
+
+    if (y0 < 0) y0 = 0;
+    if (y0 >= height) y0 = height-1;
+
+    if (x1 >= width) x1 = width-1;
+    if (x1 < 0) x1 = 0;
+
+    if (y1 >= height) y1 = height-1;
+    if (y1 < 0) y1 = 0;
 
     const float tx = x - (float) x0;
     const float ty = y - (float) y0;
