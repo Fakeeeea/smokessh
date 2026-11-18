@@ -183,7 +183,12 @@ func runApp(exePath, presetsPath string) wish.Middleware {
 
             cmd := exec.CommandContext(sess.Context(), exePath, "-d", presetsPath)
             cmd.Dir = filepath.Dir(exePath)
-            cmd.Env = append(os.Environ(), "TERM="+ptyReq.Term)
+            cmd.Env = []string{
+                "TERM=" + ptyReq.Term,
+                "PATH=/usr/local/bin:/usr/bin:/bin",
+                "HOME=/nonexistent",
+                "LANG=C.UTF-8",
+            }
 
             ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{
                 Rows: uint16(ptyReq.Window.Height),

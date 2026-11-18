@@ -12,14 +12,7 @@
 #define DEFAULT_SIZE_X 100
 #define DEFAULT_SIZE_Y 30
 
-#define MOV 0
-
 typedef enum action {ACT_NONE, ACT_UP, ACT_DOWN, ACT_LEFT, ACT_RIGHT, ACT_SELECT, ACT_QUIT} action;
-
-typedef struct input {
-    int code;
-    ivec2 mov;
-}input;
 
 ivec2 detect_size();
 
@@ -34,7 +27,6 @@ int should_keep_running();
 
 void reattach_tty();
 
-void register_simulation(simulation *sim);
 void register_app(app *a);
 void set_atexit();
 

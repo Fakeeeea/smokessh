@@ -172,7 +172,8 @@ void advect_smoke(environment* smoke, const smoke_config* config) {
             const fvec2 prev = {grid_space.x, grid_space.y};
 
             smoke->smoke[1-smoke->s_idx][idx] = sample_bilinear_fvec3(smoke->smoke[smoke->s_idx], smoke->size.x, smoke->size.y, prev.x, prev.y);
-            smoke->temp[1-smoke->s_idx][idx] = config->decay * sample_bilinear(smoke->temp[smoke->s_idx], smoke->size.x, smoke->size.y, prev.x, prev.y);
+            smoke->temp[1-smoke->s_idx][idx] = (float)config->t_ambient + config->decay *
+                (sample_bilinear(smoke->temp[smoke->s_idx], smoke->size.x, smoke->size.y, prev.x, prev.y) - (float)config->t_ambient);
 
             smoke->smoke[1-smoke->s_idx][idx].x *= config->decay;
             smoke->smoke[1-smoke->s_idx][idx].y *= config->decay;

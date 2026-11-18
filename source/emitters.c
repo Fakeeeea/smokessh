@@ -10,6 +10,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "terminal.h"
+
 #define MAX_LINE 256
 #define DEFAULT_EMITTER_FILE "default"
 
@@ -132,6 +134,8 @@ void parse_emitters(smoke_config config, emitter** emitters, int* e_num, const i
     *e_num = count;
 
     clearerr(stdin);
+
+    if (from_stdin) reattach_tty();
 
     return;
 

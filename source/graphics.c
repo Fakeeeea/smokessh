@@ -113,6 +113,8 @@ static void set_color_index(const int index) {
     push_char('m');
 }
 
+static int flush_buffer_exit_already = 0;
+
 static void flush_buffer() {
     int off = 0;
     while (off < buf_len) {
@@ -125,7 +127,10 @@ static void flush_buffer() {
         } else if (n < 0 && errno == EINTR) {
             continue;
         } else if (errno == EPIPE || errno == EIO){
-            exit(EXIT_FAILURE);
+            if (!flush_buffer_exit_already) {
+                exit(EXIT_FAILURE);
+                flush_buffer_exit_already++;
+            }
         } else {
             break;
         }

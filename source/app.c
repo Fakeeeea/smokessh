@@ -36,8 +36,8 @@ static void frame_start() {
     clock_gettime(CLOCK_MONOTONIC, &start_time);
 }
 
-static void frame_limit(const smoke_config c) {
-    const long target_frame_time_us = (long)(1000000.0f / (float)c.target_fps);
+static void frame_limit(const smoke_config* c) {
+    const long target_frame_time_us = (long)(1000000.0f / (float)c->target_fps);
     /* why the hell do you keep warning me on a redundant long
      * cast if you warn me on implicit cast if I remove it >:/
      */
@@ -86,7 +86,7 @@ void app_run(app* a) {
             default: break;
         }
 
-        frame_limit(a->config);
+        frame_limit(&a->config);
     }
 }
 

@@ -14,7 +14,7 @@ Move an object around various scenarios and switch up settings to your liking.
 >[!NOTE]
 > These flags apply to the executable itself, and not to the ssh server.
 
-```./smokessh [-cdefhostw]```
+```./smokessh [-cdefhlostw]```
 
 | Flag | Argument | Description | Default |
 | --- | --- | --- | -- |
@@ -23,11 +23,11 @@ Move an object around various scenarios and switch up settings to your liking.
 | -e | string | loads provided file as default emitter file | default |
 | -f | integer | sets the target fps | 30 |
 | -h | | shows usage information | |
+| -l | float | decay | 1.0f (no decay) |
 | -o | integer | sets the obstacle radius | 2 |
 | -s | float | sets the timestep | 0.0167 |
-| -t | float | sets ambient temperature | 273 |
+| -t | integer | sets ambient temperature | 273 |
 | -w | float | sets wind value | 0.0 |
-| -l | float | decay | 1.0f (no decay) |
 
 Example:
 ```
@@ -61,6 +61,10 @@ emitter 50 50 10 10 10 277
 > [!IMPORTANT]
 > Smoke might appear stuck when using units percent due to the percentage causing the smoke
 > to spawn on the solid walls of the simulation. Use higher percentage, or switch to units
+
+### Notes
+
+- Max terminal size is 128x128
 
 ## Building
 

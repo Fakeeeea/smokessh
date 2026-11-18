@@ -22,7 +22,7 @@ typedef struct widget {
 } widget;
 
 #define NO_ID (-1)
-#define MAX_WIDGETS_PAGE 16
+#define MAX_WIDGETS_PAGE 32
 
 typedef struct page {
     const char* title;

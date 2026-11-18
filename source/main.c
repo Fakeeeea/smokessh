@@ -12,7 +12,6 @@
 #include "terminal.h"
 #include "physics.h"
 
-//todo pass by ref to not pass 4kb path every time
 smoke_config config = {
     .target_fps = 30,
     .emitter_file = NULL,
@@ -25,8 +24,6 @@ smoke_config config = {
     .wind = 0,
     .decay = DECAY,
 };
-
-simulation sim;
 
 void parse_flags(int argc, char *argv[]) {
     int opt;
