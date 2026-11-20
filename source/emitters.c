@@ -15,6 +15,20 @@
 #define MAX_LINE 256
 #define DEFAULT_EMITTER_FILE "default"
 
+/*
+ * Emitter parsing. Based on config, it should be either on:
+ * stdin ('-') -> then recover tty
+ * default emitter path / defined emitter path
+ *
+ * a proper emitter file has structure:
+ * units (percent/cells)
+ * emitter x y r g b temp
+ * ...
+ * emitter x y r g b temp
+ *
+ * dynamically allocates **emitters
+ */
+
 void parse_emitters(smoke_config config, emitter** emitters, int* e_num, const ivec2 size) {
     *emitters = NULL;
     *e_num = 0;

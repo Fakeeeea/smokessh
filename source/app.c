@@ -58,6 +58,18 @@ static void handle_resize(app *a) {
     }
 }
 
+/*
+ * if app running, either in menu or sim (otherwise quit)
+ * during menu phase:
+ * - update the menu, getting next state
+ * - if next simulation should start simulation, init it
+ * - update app state, if it's still menu, draw menu
+ * during app phase:
+ * - check if user has quit
+ * - handle obstacle movement first,
+ * - run physics step
+ * - print smoke after physics step
+ */
 void app_run(app* a) {
     while (should_keep_running() && a->state != APP_QUIT) {
         handle_resize(a);

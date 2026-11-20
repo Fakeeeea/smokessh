@@ -6,6 +6,12 @@
 #include "config.h"
 #include "utils.h"
 
+/*
+ * Core of smoke simulator.
+ * Main source:
+ * https://www.cs.ubc.ca/~rbridson/fluidsimulation/fluids_notes.pdf
+ */
+
 uint8_t is_solid(const environment* smoke, const ivec2 p) {
     if (p.x < 0 || p.y < 0 || p.x >= smoke->size.x || p.y >= smoke->size.y) {
         return 0;
@@ -45,6 +51,16 @@ float get_pressure(const environment* smoke, const ivec2 p) {
     return smoke->pressure[IDX(p.x,p.y,smoke->size.x)];
 }
 
+/*
+ * In a desperate search for some performance, precompute and reuse
+ * residual in all of pressure solver iterations.
+ * A cell's flow is also stored through bit shifting, where:
+ * - 0001 = flow bottom = << 0
+ * - 0010 = flow top = << 1
+ * - 0100 = flow right = << 2
+ * - 1000 = flow left = << 3
+ */
+
 static void precompute_residual(environment* smoke, const smoke_config* config) {
     for (int y = 0; y < smoke->size.y; ++y) {
         for (int x = 0; x < smoke->size.x; ++x) {
@@ -75,6 +91,12 @@ static void precompute_residual(environment* smoke, const smoke_config* config) 
         }
     }
 }
+
+/*
+ * Reciprocal (1/k) of the number of non-solid (open) neighbours for a cell;
+ * Eg, if a cell has flow top and bottom, it has flow stored as
+ * 0001 | 0010 = 0011 = 3 => INV_COUNT[3] = 0.5f
+ */
 
 static const float INV_COUNT[16] = {
     0.f, 1.f, 1.f, 1.f/2,

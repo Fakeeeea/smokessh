@@ -82,6 +82,11 @@ static void decrement_widget(widget *w) {
     }
 }
 
+/*
+ * based on passed input from update_page either
+ * - increment / decrement a W_FLOAT or W_INT widget
+ * - call a W_BUTTON widget callback func
+ */
 int widget_input(widget* w, const int act) {
     if (!w) return NO_ID;
 
@@ -133,6 +138,11 @@ void init_page(page* p) {
     p->title = "";
 }
 
+/*
+ * handle user input:
+ * - either move focus,
+ * - or pass input to currently focused widget.
+ */
 int update_page(page* p, const int act) {
     if (p == NULL) return 1;
 
@@ -140,6 +150,11 @@ int update_page(page* p, const int act) {
     if (act == ACT_DOWN) p->focus = (p->focus + 1) % p->w_count;
     return widget_input(&p->items[p->focus], act);
 }
+
+/*
+ * draws a page's widgets. If the widgets do not entirely fit in a page,
+ * it tries to keep the focused widget centered.
+ */
 void draw_page(const page* p, const ivec2 size) {
     if (p == NULL) return;
 
@@ -149,12 +164,12 @@ void draw_page(const page* p, const ivec2 size) {
     int max_visible = (size.y - MARGIN * 2 - W_HEIGHT) / W_HEIGHT;
     if (max_visible < 1) max_visible = 1;
 
-    int visible = p->w_count < max_visible ? p->w_count : max_visible;
+    const int visible = p->w_count < max_visible ? p->w_count : max_visible;
 
     int start = p->focus - visible / W_HEIGHT;
     if (start > p->w_count - visible) start = p->w_count - visible;
     if (start < 0) start = 0;
-    int end = start + visible;
+    const int end = start + visible;
 
     const int w = 30;
     const int total_h = visible * W_HEIGHT + W_HEIGHT;

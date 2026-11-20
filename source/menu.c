@@ -28,6 +28,12 @@ static void start_sim(const int id) {
     m->result = APP_SIM;
 }
 
+/*
+ * The menu current page behaves like a stack,
+ * each time a new page is opened it's "stacked" on top of the old page,
+ * meaning going back to old page is as simple as popping the stack,
+ * while going to a new page is as simple as pushing a new page state to the stack.
+ */
 static void push_stack(const int val) {
     if (m->depth >= MAX_DEPTH) {
         fprintf(stderr, "Tried pushing over menu stack limit");
@@ -53,6 +59,10 @@ static void prev_page(const int id) {
 
 static int qsort_cmp(const void *a, const void *b) {return strcmp(a,b);}
 
+/*
+ * scans for the emitter presets stored in
+ * path config->emitter_dir
+ */
 static void scan_presets() {
     m->preset_count = 0;
 
@@ -94,6 +104,9 @@ static void select_preset(const int id) {
     prev_page(0);
 }
 
+/*
+ * Emitters page is built based on the found presets, instead of once at init
+ */
 static void build_emitters_page() {
     page* p = &m->pages[PAGE_EMITTERS];
     init_page(p);
@@ -121,6 +134,11 @@ static void next_page(const int id) {
         default: break;
     }
 }
+
+/*
+ * create the widgets of most of the menu pages
+ * at init, save config ref, init stack depth (0 is quit)
+ */
 
 void init_menu(menu* i_menu, smoke_config* config) {
     m = i_menu;
@@ -161,6 +179,11 @@ static page* get_current_page() {
     return &m->pages[m->stack[m->depth-1]];
 }
 
+/*
+ * return next app state based on menu actions
+ * note: APP_SIM result is produced in get_current_page() by the RUN button callback
+ * start_sim()
+ */
 int update_menu(const int code) {
     m->result = APP_MENU;
 

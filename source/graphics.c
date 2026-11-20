@@ -115,6 +115,12 @@ static void set_color_index(const int index) {
 
 static int flush_buffer_exit_already = 0;
 
+/*
+ * prints to screen (terminal) the contents of the framebuffer. If an user exits, EIO clause will cause
+ * exit() to be called, which will call app_shutdown(), which will flush_buffer() once again. Hence we
+ * store if flush_buffer has exited already to avoid recalling exit().
+ */
+
 static void flush_buffer() {
     int off = 0;
     while (off < buf_len) {
@@ -207,6 +213,16 @@ static void print_header(const ivec2 size) {
     }
     reset_color();
 }
+
+/*
+ * main smoke printing function.
+ * keeps track of what is already on the screen to avoid
+ * sending a terminal full of data every frame, leading
+ * to the terminal falling behind to simulation.
+ *
+ * solid cells: &
+ * smoke cells:  .:-=+*#%@
+ */
 
 void print_smoke(const environment* smoke) {
     cur_row = cur_col = cur_color = -1;
