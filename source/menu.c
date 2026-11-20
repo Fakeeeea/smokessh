@@ -181,8 +181,8 @@ static page* get_current_page() {
 
 /*
  * return next app state based on menu actions
- * note: APP_SIM result is produced in get_current_page() by the RUN button callback
- * start_sim()
+ * note: APP_SIM result is produced in update_page() by the RUN button
+ * callback start_sim()
  */
 int update_menu(const int code) {
     m->result = APP_MENU;

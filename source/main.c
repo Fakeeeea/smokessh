@@ -85,8 +85,7 @@ int main(int argc, char *argv[]) {
     app_init(&a, config);
     app_run(&a);
 
-    //app_shutdown(&a);
-    /* atexit calls app_shutdown already, so it's commented out here.
+    /* app_shutdown(&a) is already called by atexit; so it's omitted in here.
      */
     return 0;
 }

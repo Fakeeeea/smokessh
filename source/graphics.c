@@ -134,8 +134,8 @@ static void flush_buffer() {
             continue;
         } else if (errno == EPIPE || errno == EIO){
             if (!flush_buffer_exit_already) {
-                exit(EXIT_FAILURE);
                 flush_buffer_exit_already++;
+                exit(EXIT_FAILURE);
             }
         } else {
             break;
