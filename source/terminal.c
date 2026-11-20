@@ -28,6 +28,10 @@ static int terminal_ready = 0;
 
 static app *registered_app = NULL;
 
+/*
+ * Put STDIN into raw non blocking mode,
+ * save old terminal settings.
+ */
 void setup_terminal() {
     tcgetattr(STDIN_FILENO, &old);
 
@@ -44,12 +48,18 @@ void setup_terminal() {
     terminal_ready = 1;
 }
 
+/*
+ * reset terminal to old settings if they have been changed
+ */
 void reset_terminal() {
     if (!terminal_ready) return;
     tcsetattr(STDIN_FILENO, TCSANOW, &old);
     fcntl(STDIN_FILENO, F_SETFL, oldf);
 }
 
+/*
+ * reconnect stdin back to tty
+ */
 void reattach_tty() {
     int fd = open("/dev/tty", O_RDONLY);
     if (fd < 0) exit(EXIT_FAILURE);
@@ -135,6 +145,11 @@ static void app_shutdown_wrapper() {
     app_shutdown(registered_app);
 }
 
+/*
+ * set the 2 signal handlers:
+ * - resize_handler for SIGWINCH (window resize)
+ * - sigint_handler for SIGINT (ctrl + c)
+ */
 void set_handlers() {
     sa.sa_handler = resize_handler;
     sigemptyset(&sa.sa_mask);
@@ -149,6 +164,9 @@ void set_handlers() {
     sigaction(SIGINT, &sa_int, NULL);
 }
 
+/*
+ * function to be called on program exit
+ */
 void set_atexit() {
     atexit(app_shutdown_wrapper);
 }

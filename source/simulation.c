@@ -15,6 +15,12 @@
 #include "emitters.h"
 #include "obstacles.h"
 
+/*
+ * init smoke env (allocate vars, store size)
+ * parse emitters
+ * set obstacle to center of screen
+ * zero env vars
+ */
 simulation init_simulation(const smoke_config config, const ivec2 size) {
     simulation s;
 
@@ -41,6 +47,14 @@ void restart_simulation(simulation *s, const ivec2 size) {
     s->obstacle = init_obstacle(size, s->config.obstacle_radius);
 }
 
+/*
+ * run physics step;
+ * 1) velocities advection
+ * 2) external forces
+ * 3) pressure solve
+ * 4) update velocities
+ * 5) smoke advection
+ */
 void run(simulation* sim) {
     handle_emitter(&sim->env, sim->emitters, sim->e_num);
     update_solid_map(&sim->env, &sim->config, sim->obstacle);
